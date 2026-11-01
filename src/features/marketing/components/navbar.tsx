@@ -33,11 +33,11 @@ export function Navbar() {
         </div>
         <div className="ml-auto flex items-center gap-1 sm:gap-2 md:ml-0">
           <ThemeToggle />
-          <Link href="/dashboard" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+          <Link href="/login" className={buttonVariants({ variant: "ghost", size: "sm" })}>
             {navigation.login}
           </Link>
           <Link
-            href="/dashboard"
+            href="/register"
             className={cn(
               buttonVariants({ size: "sm" }),
               "bg-gradient-brand text-primary-foreground hover:opacity-90",

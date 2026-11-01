@@ -51,7 +51,7 @@ export function HeroSection() {
           {/* CTA Buttons matching screenshot pill design */}
           <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:gap-4 lg:justify-start">
             <Link
-              href="/dashboard"
+              href="/register"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "group relative h-12 sm:h-13 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 px-6 sm:px-7 text-sm font-bold text-white shadow-[0_0_30px_rgba(147,51,234,0.55)] transition-all hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(147,51,234,0.75)] active:scale-95 justify-center",

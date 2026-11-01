@@ -44,13 +44,13 @@ export function Footer() {
             </h3>
             <nav className="mt-4 flex flex-col gap-3">
               <Link
-                href="/dashboard"
+                href="/login"
                 className="text-muted-foreground hover:text-foreground focus-visible:ring-ring w-fit rounded-sm text-sm transition-colors outline-none focus-visible:ring-2"
               >
                 {navigation.login}
               </Link>
               <Link
-                href="/dashboard"
+                href="/register"
                 className="text-muted-foreground hover:text-foreground focus-visible:ring-ring w-fit rounded-sm text-sm transition-colors outline-none focus-visible:ring-2"
               >
                 {navigation.start}
