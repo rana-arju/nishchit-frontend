@@ -39,6 +39,15 @@ export const marketingContent = {
       modifyAction: "না, পরিবর্তন চাই",
     },
   },
+  partners: {
+    title: "Trusted by growing F-commerce sellers",
+    items: [
+      { name: "SteadFast Courier", type: "steadfast" },
+      { name: "Pathao Courier", type: "pathao" },
+      { name: "RedX Delivery", type: "redx" },
+      { name: "Meta Business Partners", type: "meta" },
+    ],
+  },
   problem: {
     eyebrow: "কাজটা সহজ হোক",
     title: "অর্ডার সামলাতে আর এলোমেলো নয়",
@@ -60,38 +69,40 @@ export const marketingContent = {
     ],
   },
   features: {
-    eyebrow: "ফিচার",
-    title: "দৈনিক অর্ডারের দরকারি সবকিছু",
+    eyebrow: "FEATURES",
+    title: "Everything you need from chat to delivery",
     items: [
       {
-        key: "language",
-        title: "Banglish বোঝে",
-        description: "বাংলা, ইংরেজি ও Banglish চ্যাট থেকে তথ্য নেয়।",
+        key: "inbox",
+        title: "AI Inbox",
+        description:
+          "Understands Bangla, Banglish & English messages and extracts order details.",
+        gradient: "from-purple-500/10 via-indigo-500/5 to-transparent",
+        badgeColor: "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/60",
       },
       {
         key: "risk",
-        title: "ঝুঁকি স্কোর",
-        description: "পাঠানোর আগে সন্দেহজনক অর্ডার চিহ্নিত করে।",
+        title: "Risk Detection",
+        description:
+          "Finds fake or high-return orders early with smart risk score.",
+        gradient: "from-blue-500/10 via-sky-500/5 to-transparent",
+        badgeColor: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60",
       },
       {
         key: "courier",
-        title: "কুরিয়ার API",
-        description: "কুরিয়ার বুকিংয়ের কাজ এক জায়গায় রাখে।",
-      },
-      {
-        key: "handoff",
-        title: "সেলার হ্যান্ডঅফ",
-        description: "প্রয়োজনে কথোপকথন সরাসরি সেলারকে দেয়।",
+        title: "One-Click Courier Booking",
+        description:
+          "Book with Steadfast, Pathao or RedX and track deliveries automatically.",
+        gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
+        badgeColor: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/60",
       },
       {
         key: "dashboard",
-        title: "সহজ ড্যাশবোর্ড",
-        description: "অর্ডারের অবস্থা দ্রুত দেখা ও গুছিয়ে রাখা যায়।",
-      },
-      {
-        key: "security",
-        title: "নিরাপদ ডেটা",
-        description: "ক্রেতা ও অর্ডারের তথ্য যত্নে রাখা হয়।",
+        title: "Seller Dashboard",
+        description:
+          "Orders, customer history, return rate and cost per order — all in one place.",
+        gradient: "from-pink-500/10 via-rose-500/5 to-transparent",
+        badgeColor: "text-pink-600 bg-pink-50 dark:bg-pink-950/50 dark:text-pink-300 border-pink-200/60 dark:border-pink-800/60",
       },
     ],
   },

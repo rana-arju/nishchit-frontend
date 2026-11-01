@@ -13,9 +13,9 @@ export default function RootPage() {
       <Navbar />
       <main>
         <HeroSection />
+        <FeaturesSection />
         <ProblemSection />
         <HowItWorksSection />
-        <FeaturesSection />
         <FaqSection />
         <FinalCta />
       </main>
