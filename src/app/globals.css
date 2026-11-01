@@ -97,6 +97,22 @@
     oklch(0.55 0.22 300) 50%,
     oklch(0.75 0.14 200) 100%
   );
+
+  --hero-background: oklch(0.16 0.055 264);
+  --hero-text-muted: oklch(0.86 0.025 258);
+  --hero-accent: oklch(0.8 0.14 220);
+  --hero-glow: oklch(0.65 0.24 295 / 45%);
+  --hero-shadow: oklch(0.05 0.04 270 / 65%);
+  --hero-phone: oklch(0.17 0.02 270);
+  --hero-screen: oklch(0.98 0.006 255);
+  --hero-ink: oklch(0.22 0.02 265);
+  --hero-ink-muted: oklch(0.53 0.025 265);
+  --hero-blue: oklch(0.57 0.23 260);
+  --hero-message: oklch(0.9 0.05 260);
+  --hero-success: oklch(0.55 0.16 155);
+  --hero-success-soft: oklch(0.92 0.06 158);
+  --hero-product: oklch(0.92 0.05 25);
+  --hero-product-ink: oklch(0.55 0.2 25);
 }
 
 .dark {
@@ -168,6 +184,124 @@
   }
   .font-bangla {
     font-family: var(--font-bangla), var(--font-sans);
+  }
+
+  .hero-grid {
+    background-image:
+      linear-gradient(oklch(1 0 0 / 3%) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(1 0 0 / 3%) 1px, transparent 1px);
+    background-size: 3rem 3rem;
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+  }
+
+  .hero-orb {
+    position: absolute;
+    z-index: -10;
+    border-radius: 9999px;
+    filter: blur(6rem);
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .hero-orb-left {
+    width: 32rem;
+    height: 32rem;
+    left: -14rem;
+    bottom: -12rem;
+    background: radial-gradient(circle, #0ea5e9 0%, #2563eb 50%, transparent 75%);
+    opacity: 0.35;
+  }
+
+  .hero-orb-right {
+    width: 36rem;
+    height: 36rem;
+    right: -10rem;
+    bottom: -12rem;
+    background: radial-gradient(circle, #c026d3 0%, #9333ea 40%, transparent 70%);
+    opacity: 0.4;
+  }
+
+  .hero-orb-top {
+    position: absolute;
+    z-index: -10;
+    width: 40rem;
+    height: 25rem;
+    top: -8rem;
+    left: 20%;
+    border-radius: 9999px;
+    filter: blur(7rem);
+    background: radial-gradient(ellipse, #1e3a8a 0%, #0f172a 70%, transparent 100%);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* Light mode adjustments for hero ambient background */
+  :root:not(.dark) .hero-orb-top {
+    background: radial-gradient(ellipse, #bfdbfe 0%, #e0e7ff 70%, transparent 100%);
+    opacity: 0.45;
+  }
+  :root:not(.dark) .hero-orb-left {
+    background: radial-gradient(circle, #38bdf8 0%, #60a5fa 50%, transparent 75%);
+    opacity: 0.25;
+  }
+  :root:not(.dark) .hero-orb-right {
+    background: radial-gradient(circle, #f0abfc 0%, #c084fc 40%, transparent 70%);
+    opacity: 0.25;
+  }
+
+  .hero-phone-glow {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle at 75% 75%, rgba(192, 38, 211, 0.45), rgba(14, 165, 233, 0.25) 50%, transparent 70%);
+    filter: blur(35px);
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 4rem;
+  }
+
+  .hero-phone {
+    animation: hero-float 6s ease-in-out infinite;
+    transform-origin: center center;
+  }
+
+  .hero-flow-card {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .hero-flow-card:hover {
+    transform: translateX(6px) scale(1.02);
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+    border-color: rgba(56, 189, 248, 0.7);
+  }
+}
+
+@keyframes hero-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(0.8deg);
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+    box-shadow: 0 0 12px #38bdf8;
+  }
+}
+
+@keyframes neon-glow {
+  0%, 100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 0.95;
   }
 }
 
