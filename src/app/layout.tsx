@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, Hind_Siliguri } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { marketingContent } from "@/features/marketing/content";
-import { StoreProvider } from "@/store/provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,9 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <StoreProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-          </StoreProvider>
+          <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

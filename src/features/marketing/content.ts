@@ -213,6 +213,8 @@ export const marketingContent = {
   },
   footer: {
     description: "বাংলাদেশি ফেসবুক সেলারদের অর্ডার গুছিয়ে রাখার সহজ সহায়তা।",
+    productTitle: "প্রোডাক্ট",
+    accountTitle: "অ্যাকাউন্ট",
     copyright: "© ২০২৬ Nishchit। সর্বস্বত্ব সংরক্ষিত।",
   },
 } as const;
