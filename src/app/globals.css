@@ -73,6 +73,10 @@
   --input: oklch(0.91 0.005 265);
   --ring: oklch(0.6 0.15 288);
 
+  --channel-messenger: #0084ff;
+  --channel-instagram: #d62976;
+  --channel-whatsapp: #25d366;
+
   /* Chart palette: indigo -> violet -> cyan */
   --chart-1: oklch(0.47 0.21 288);
   --chart-2: oklch(0.58 0.2 300);
@@ -113,6 +117,33 @@
   --hero-success-soft: oklch(0.92 0.06 158);
   --hero-product: oklch(0.92 0.05 25);
   --hero-product-ink: oklch(0.55 0.2 25);
+}
+
+.channel-brand-messenger {
+  color: var(--channel-messenger);
+}
+
+.channel-brand-instagram {
+  color: var(--channel-instagram);
+}
+
+.channel-brand-whatsapp {
+  color: var(--channel-whatsapp);
+}
+
+.channel-badge-messenger {
+  color: white;
+  background-color: var(--channel-messenger);
+}
+
+.channel-badge-instagram {
+  color: white;
+  background-color: var(--channel-instagram);
+}
+
+.channel-badge-whatsapp {
+  color: white;
+  background-color: var(--channel-whatsapp);
 }
 
 .dark {
@@ -184,6 +215,16 @@
   }
   .font-bangla {
     font-family: var(--font-bangla), var(--font-sans);
+  }
+
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 
   .hero-grid {

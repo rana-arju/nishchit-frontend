@@ -55,7 +55,7 @@ export function StatCard({
           </p>
           <div
             className={cn(
-              "shrink-0 rounded-lg p-1.5 ring-1 ring-black/5 ring-inset transition-transform duration-300 group-hover:scale-105 sm:rounded-xl sm:p-2.5",
+              "shrink-0 rounded-lg p-1.5 ring-1 ring-black/5 transition-transform duration-300 ring-inset group-hover:scale-105 sm:rounded-xl sm:p-2.5",
               iconClassName,
             )}
           >

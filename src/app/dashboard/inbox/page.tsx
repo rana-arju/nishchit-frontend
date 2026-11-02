@@ -1,4 +1,4 @@
-import { InboxView } from "@/features/dashboard/components/inbox-view";
+import { InboxView } from "@/features/inbox/components/inbox-view";
 
 export default function InboxPage() {
   return (
