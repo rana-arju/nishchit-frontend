@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchLeads } from "@/features/leads/api/leads";
-import { LeadCard } from "@/features/leads/components/lead-card";
+import { LeadColumn } from "@/features/leads/components/lead-column";
 import { LeadDetailSheet } from "@/features/leads/components/lead-detail-sheet";
 import type { Lead } from "@/features/leads/schemas/lead";
 import { PIPELINE_STAGES, pipelineStageLabel, type PipelineStage } from "@/types/pipeline-stage";
@@ -14,6 +14,8 @@ type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data:
 export function LeadsBoard() {
   const [state, setState] = useState<State>({ phase: "loading" });
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
+  const [dropTargetStage, setDropTargetStage] = useState<PipelineStage | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,12 +37,9 @@ export function LeadsBoard() {
   const selectedLead = leads.find((lead) => lead.id === selectedId) ?? null;
 
   const leadsByStage = useMemo(() => {
-    const grouped: Record<PipelineStage, Lead[]> = {
-      new: [],
-      contacted: [],
-      qualified: [],
-      lost: [],
-    };
+    const grouped = Object.fromEntries(
+      PIPELINE_STAGES.map((stage) => [stage, [] as Lead[]]),
+    ) as Record<PipelineStage, Lead[]>;
     for (const lead of state.phase === "ready" ? state.data : []) grouped[lead.stage].push(lead);
     return grouped;
   }, [state]);
@@ -51,6 +50,20 @@ export function LeadsBoard() {
         ? { ...current, data: current.data.map((lead) => (lead.id === id ? updater(lead) : lead)) }
         : current,
     );
+  }
+
+  function moveLeadToStage(id: string, stage: PipelineStage) {
+    const stageTags = new Set(Object.values(pipelineStageLabel));
+    updateLead(id, (lead) => ({
+      ...lead,
+      stage,
+      tags: [...lead.tags.filter((tag) => !stageTags.has(tag)), pipelineStageLabel[stage]],
+    }));
+  }
+
+  function finishDragging() {
+    setDraggedLeadId(null);
+    setDropTargetStage(null);
   }
 
   if (state.phase === "loading") {
@@ -75,27 +88,28 @@ export function LeadsBoard() {
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="scrollbar-hidden flex max-w-full min-w-0 items-start gap-4 overflow-x-auto pb-3">
         {PIPELINE_STAGES.map((stage) => (
-          <Card key={stage} size="sm">
-            <CardHeader className="flex flex-row items-center justify-between gap-2">
-              <CardTitle className="font-bangla text-sm">{pipelineStageLabel[stage]}</CardTitle>
-              <span className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded-full text-xs font-medium">
-                {leadsByStage[stage].length}
-              </span>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              {leadsByStage[stage].length === 0 ? (
-                <div className="text-muted-foreground font-bangla flex min-h-24 items-center justify-center rounded-lg border border-dashed text-xs">
-                  কোনো লিড নেই
-                </div>
-              ) : (
-                leadsByStage[stage].map((lead) => (
-                  <LeadCard key={lead.id} lead={lead} onClick={() => setSelectedId(lead.id)} />
-                ))
-              )}
-            </CardContent>
-          </Card>
+          <LeadColumn
+            key={stage}
+            stage={stage}
+            leads={leadsByStage[stage]}
+            draggedLeadId={draggedLeadId}
+            isDropTarget={dropTargetStage === stage}
+            onSelectLead={setSelectedId}
+            onDragStart={setDraggedLeadId}
+            onDragEnd={finishDragging}
+            onDragEnter={() => {
+              if (draggedLeadId) setDropTargetStage(stage);
+            }}
+            onDragLeave={() => {
+              if (dropTargetStage === stage) setDropTargetStage(null);
+            }}
+            onDrop={(leadId) => {
+              if (leadId) moveLeadToStage(leadId, stage);
+              finishDragging();
+            }}
+          />
         ))}
       </div>
 
@@ -106,7 +120,7 @@ export function LeadsBoard() {
           if (!open) setSelectedId(null);
         }}
         onChangeStage={(stage) => {
-          if (selectedLead) updateLead(selectedLead.id, (lead) => ({ ...lead, stage }));
+          if (selectedLead) moveLeadToStage(selectedLead.id, stage);
         }}
         onAddTag={(tag) => {
           if (selectedLead && !selectedLead.tags.includes(tag)) {

@@ -6,9 +6,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="min-w-0 overflow-x-hidden">
         <Topbar />
-        <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">{children}</main>
+        <main className="flex min-w-0 flex-1 flex-col gap-4 p-4 md:p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
