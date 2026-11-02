@@ -9,9 +9,11 @@ const valueIcons = {
 } as const;
 
 const valueThemes = {
-  inbox: "text-purple-600 bg-purple-50 border-purple-200/60 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800/60",
+  inbox:
+    "text-purple-600 bg-purple-50 border-purple-200/60 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800/60",
   risk: "text-blue-600 bg-blue-50 border-blue-200/60 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800/60",
-  courier: "text-emerald-600 bg-emerald-50 border-emerald-200/60 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800/60",
+  courier:
+    "text-emerald-600 bg-emerald-50 border-emerald-200/60 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800/60",
 } as const;
 
 export function MissionSection() {

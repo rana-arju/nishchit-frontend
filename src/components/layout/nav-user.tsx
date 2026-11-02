@@ -27,9 +27,7 @@ export function NavUser() {
                 </span>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">Nishchit Seller</span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    Facebook store
-                  </span>
+                  <span className="text-muted-foreground truncate text-xs">Facebook store</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>

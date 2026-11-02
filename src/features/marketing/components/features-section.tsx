@@ -11,27 +11,19 @@ const featureIcons = {
 
 function BrandList() {
   return (
-    <div className="flex shrink-0 items-center gap-12 sm:gap-16 md:gap-20 pr-12 sm:pr-16 md:pr-20">
+    <div className="flex shrink-0 items-center gap-12 pr-12 sm:gap-16 sm:pr-16 md:gap-20 md:pr-20">
       {/* 1. SteadFast Courier - Authentic Kite Symbol + Modern Typography */}
       <div className="group flex items-center gap-3 transition-transform hover:scale-105">
         <div className="relative flex size-8.5 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm dark:bg-slate-800">
           <svg viewBox="0 0 28 28" className="size-5 fill-none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M14 2L24 12L14 22L4 12L14 2Z"
-              fill="#0284C7"
-              fillOpacity="0.25"
-            />
+            <path d="M14 2L24 12L14 22L4 12L14 2Z" fill="#0284C7" fillOpacity="0.25" />
             <path
               d="M14 4L22 12L14 20L6 12L14 4Z"
               stroke="#38BDF8"
               strokeWidth="2.2"
               strokeLinejoin="round"
             />
-            <path
-              d="M14 4V20M6 12H22"
-              stroke="#38BDF8"
-              strokeWidth="1.8"
-            />
+            <path d="M14 4V20M6 12H22" stroke="#38BDF8" strokeWidth="1.8" />
             <path
               d="M14 20L11 25M14 20L17 25"
               stroke="#38BDF8"
@@ -58,10 +50,10 @@ function BrandList() {
             <path d="M6 16.5L12 10l6 6.5-2.5 1-3.5-3.5-3.5 3.5z" fill="#e11938" opacity="0.8" />
           </svg>
           <div className="leading-none">
-            <span className="font-sans text-xl font-black italic tracking-tighter text-[#e11938]">
+            <span className="font-sans text-xl font-black tracking-tighter text-[#e11938] italic">
               pathao
             </span>
-            <span className="block pt-0.5 text-[10.5px] font-bold italic tracking-widest text-[#e11938]">
+            <span className="block pt-0.5 text-[10.5px] font-bold tracking-widest text-[#e11938] italic">
               courier
             </span>
           </div>
@@ -76,11 +68,9 @@ function BrandList() {
               <span className="font-sans text-xl font-black tracking-tighter text-slate-900 dark:text-white">
                 RED
               </span>
-              <span className="font-sans text-2xl font-black italic text-[#EA1D2C]">
-                X
-              </span>
+              <span className="font-sans text-2xl font-black text-[#EA1D2C] italic">X</span>
             </div>
-            <span className="block text-[10px] font-bold italic tracking-wider text-slate-600 dark:text-slate-400">
+            <span className="block text-[10px] font-bold tracking-wider text-slate-600 italic dark:text-slate-400">
               Delivery
             </span>
           </div>
@@ -117,11 +107,11 @@ export function PartnerLogos() {
   const { partners } = marketingContent;
 
   return (
-    <div className="w-full border-b border-border/60 bg-slate-50/90 dark:bg-slate-900/40 py-5 backdrop-blur-md overflow-hidden">
+    <div className="border-border/60 w-full overflow-hidden border-b bg-slate-50/90 py-5 backdrop-blur-md dark:bg-slate-900/40">
       <div className="flex w-full flex-col lg:flex-row lg:items-center">
         {/* Left Trust Statement Badge */}
-        <div className="z-20 shrink-0 px-6 py-2 bg-slate-50/90 dark:bg-slate-900/40 lg:border-r border-slate-200 dark:border-slate-800">
-          <p className="whitespace-nowrap text-center lg:text-left text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200">
+        <div className="z-20 shrink-0 border-slate-200 bg-slate-50/90 px-6 py-2 lg:border-r dark:border-slate-800 dark:bg-slate-900/40">
+          <p className="text-center text-xs font-semibold tracking-tight whitespace-nowrap text-slate-800 sm:text-sm lg:text-left dark:text-slate-200">
             {partners.title}
           </p>
         </div>
@@ -129,8 +119,8 @@ export function PartnerLogos() {
         {/* Full-width continuous Auto-Slide Marquee Container */}
         <div className="relative flex-1 overflow-hidden">
           {/* Subtle gradient edge fades */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-12 sm:w-20 bg-gradient-to-r from-slate-50 dark:from-slate-900/90 to-transparent" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-12 sm:w-20 bg-gradient-to-l from-slate-50 dark:from-slate-900/90 to-transparent" />
+          <div className="pointer-events-none absolute top-0 bottom-0 left-0 z-10 w-12 bg-gradient-to-r from-slate-50 to-transparent sm:w-20 dark:from-slate-900/90" />
+          <div className="pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-12 bg-gradient-to-l from-slate-50 to-transparent sm:w-20 dark:from-slate-900/90" />
 
           {/* Infinite Marquee Track */}
           <div className="animate-marquee flex items-center py-2">
@@ -149,7 +139,10 @@ export function FeaturesSection() {
   const { features } = marketingContent;
 
   return (
-    <section id="features" className="scroll-mt-16 bg-white dark:bg-slate-950 transition-colors duration-300">
+    <section
+      id="features"
+      className="scroll-mt-16 bg-white transition-colors duration-300 dark:bg-slate-950"
+    >
       {/* 1. Partner Logos Section directly below Hero */}
       <PartnerLogos />
 
@@ -157,10 +150,10 @@ export function FeaturesSection() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         {/* Section Header */}
         <Reveal className="mx-auto max-w-3xl text-center">
-          <p className="mb-2 text-xs font-bold tracking-widest uppercase text-purple-600 dark:text-purple-400">
+          <p className="mb-2 text-xs font-bold tracking-widest text-purple-600 uppercase dark:text-purple-400">
             {features.eyebrow}
           </p>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl md:text-4xl dark:text-white">
             {features.title}
           </h2>
         </Reveal>
@@ -173,7 +166,7 @@ export function FeaturesSection() {
             return (
               <Reveal key={item.title}>
                 <div
-                  className={`group relative flex h-full flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800/80 dark:bg-slate-900/60 dark:hover:border-slate-700 bg-gradient-to-b ${item.gradient || "from-slate-50 to-white"}`}
+                  className={`group relative flex h-full flex-col justify-between rounded-3xl border border-slate-200/80 bg-white bg-gradient-to-b p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800/80 dark:bg-slate-900/60 dark:hover:border-slate-700 ${item.gradient || "from-slate-50 to-white"}`}
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
                   <div>

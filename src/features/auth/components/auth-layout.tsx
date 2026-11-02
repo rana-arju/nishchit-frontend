@@ -9,12 +9,15 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="relative isolate hidden flex-col justify-between overflow-hidden bg-slate-950 px-10 py-10 text-white dark:bg-[#070b19] lg:flex xl:px-14">
+      <div className="relative isolate hidden flex-col justify-between overflow-hidden bg-slate-950 px-10 py-10 text-white lg:flex xl:px-14 dark:bg-[#070b19]">
         <div className="hero-grid absolute inset-0 -z-20 opacity-30" aria-hidden="true" />
         <div className="hero-orb hero-orb-left" aria-hidden="true" />
         <div className="hero-orb hero-orb-right" aria-hidden="true" />
 
-        <Link href="/" className="relative z-10 inline-flex items-center gap-2 font-semibold tracking-tight">
+        <Link
+          href="/"
+          className="relative z-10 inline-flex items-center gap-2 font-semibold tracking-tight"
+        >
           <span className="bg-gradient-brand size-7 rounded-lg" aria-hidden="true" />
           {brand}
         </Link>
@@ -46,7 +49,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         <p className="relative z-10 text-xs text-slate-400">{marketingContent.footer.copyright}</p>
       </div>
 
-      <div className="flex flex-col items-center justify-center bg-background px-4 py-10 sm:px-6">
+      <div className="bg-background flex flex-col items-center justify-center px-4 py-10 sm:px-6">
         <div className="mb-8 lg:hidden">
           <Link href="/" className="inline-flex items-center gap-2 font-semibold tracking-tight">
             <span className="bg-gradient-brand size-7 rounded-lg" aria-hidden="true" />

@@ -71,7 +71,7 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
       {/* Instead of stacking 5 giant cards below the phone making the screen endlessly long,
           provide an elegant, compact horizontal workflow bar with active indicator */}
       <div className="mb-4 flex w-full max-w-md items-center justify-center lg:hidden">
-        <div className="flex w-full items-center justify-between gap-1.5 overflow-x-auto rounded-2xl border border-white/15 bg-slate-900/70 p-1.5 backdrop-blur-xl shadow-lg scrollbar-none">
+        <div className="flex w-full scrollbar-none items-center justify-between gap-1.5 overflow-x-auto rounded-2xl border border-white/15 bg-slate-900/70 p-1.5 shadow-lg backdrop-blur-xl">
           {flowSteps.map((step, idx) => {
             const Icon = step.icon;
             const isActive = activeStep === idx;
@@ -80,15 +80,15 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
                 key={step.id}
                 type="button"
                 onClick={() => setActiveStep(idx)}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-[11px] font-semibold transition-all duration-300 ${
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[11px] font-semibold transition-all duration-300 ${
                   isActive
-                    ? "bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/30 scale-[1.02]"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    ? "scale-[1.02] bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/30"
+                    : "text-slate-400 hover:bg-white/5 hover:text-white"
                 }`}
                 aria-label={step.label}
               >
                 <Icon className="size-3.5 shrink-0" />
-                <span className="truncate hidden sm:inline">{step.label}</span>
+                <span className="hidden truncate sm:inline">{step.label}</span>
                 <span className="sm:hidden">{idx + 1}</span>
               </button>
             );
@@ -103,117 +103,117 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
           <div className="hero-phone-glow" />
 
           {/* Smartphone Hardware Frame (Precision Titanium Curved Edge, responsive sizing) */}
-          <div className="hero-phone relative w-[18.2rem] rounded-[2.75rem] border-[4px] border-slate-300/60 dark:border-slate-500/50 bg-gradient-to-b from-slate-200 via-slate-600 to-slate-900 dark:from-slate-700 dark:via-slate-800 dark:to-slate-950 p-[2.5px] shadow-[0_20px_50px_rgba(0,0,0,0.7)] sm:w-[20.5rem] sm:rounded-[3.25rem] sm:border-[4.5px] sm:p-[3px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.7)]">
+          <div className="hero-phone relative w-[18.2rem] rounded-[2.75rem] border-[4px] border-slate-300/60 bg-gradient-to-b from-slate-200 via-slate-600 to-slate-900 p-[2.5px] shadow-[0_20px_50px_rgba(0,0,0,0.7)] sm:w-[20.5rem] sm:rounded-[3.25rem] sm:border-[4.5px] sm:p-[3px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.7)] dark:border-slate-500/50 dark:from-slate-700 dark:via-slate-800 dark:to-slate-950">
             {/* Inner Display Bezel */}
-            <div className="relative overflow-hidden rounded-[2.5rem] sm:rounded-[3rem] border border-black/80 bg-white dark:bg-slate-950 shadow-inner">
+            <div className="relative overflow-hidden rounded-[2.5rem] border border-black/80 bg-white shadow-inner sm:rounded-[3rem] dark:bg-slate-950">
               {/* Dynamic Island / Notch + Status Bar */}
-              <div className="flex h-9 sm:h-10 items-center justify-between bg-white dark:bg-slate-950 px-6 sm:px-7 pt-2 sm:pt-2.5 text-slate-800 dark:text-slate-200">
-                <span className="text-[0.75rem] sm:text-[0.8rem] font-semibold tracking-tight">
+              <div className="flex h-9 items-center justify-between bg-white px-6 pt-2 text-slate-800 sm:h-10 sm:px-7 sm:pt-2.5 dark:bg-slate-950 dark:text-slate-200">
+                <span className="text-[0.75rem] font-semibold tracking-tight sm:text-[0.8rem]">
                   {hero.mock.time || "10:24 AM"}
                 </span>
 
                 {/* Speaker pill notch */}
-                <div className="flex h-3.5 sm:h-4 w-18 sm:w-20 items-center justify-center rounded-full bg-slate-900 dark:bg-black">
-                  <div className="size-1.5 sm:size-2 rounded-full bg-slate-950" />
+                <div className="flex h-3.5 w-18 items-center justify-center rounded-full bg-slate-900 sm:h-4 sm:w-20 dark:bg-black">
+                  <div className="size-1.5 rounded-full bg-slate-950 sm:size-2" />
                 </div>
 
                 {/* Status Bar Icons (signal, wifi, battery) */}
-                <div className="flex items-center gap-1 sm:gap-1.5 text-slate-800 dark:text-slate-200">
+                <div className="flex items-center gap-1 text-slate-800 sm:gap-1.5 dark:text-slate-200">
                   <span className="flex items-end gap-0.5">
                     <span className="h-1.5 w-0.5 rounded-xs bg-current" />
                     <span className="h-2 w-0.5 rounded-xs bg-current" />
                     <span className="h-2.5 w-0.5 rounded-xs bg-current" />
                     <span className="h-3 w-0.5 rounded-xs bg-current" />
                   </span>
-                  <span className="text-[9px] sm:text-[10px] font-bold">5G</span>
-                  <div className="flex h-2.5 sm:h-3 w-4 sm:w-5 items-center rounded-xs sm:rounded-sm border border-slate-700 dark:border-slate-400 p-0.5">
+                  <span className="text-[9px] font-bold sm:text-[10px]">5G</span>
+                  <div className="flex h-2.5 w-4 items-center rounded-xs border border-slate-700 p-0.5 sm:h-3 sm:w-5 sm:rounded-sm dark:border-slate-400">
                     <div className="h-full w-full rounded-xs bg-slate-800 dark:bg-slate-200" />
                   </div>
                 </div>
               </div>
 
               {/* Chat Header */}
-              <div className="flex items-center gap-2.5 sm:gap-3 border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 px-3.5 sm:px-4 py-2 sm:py-2.5 shadow-xs">
+              <div className="flex items-center gap-2.5 border-b border-slate-100 bg-white/95 px-3.5 py-2 shadow-xs sm:gap-3 sm:px-4 sm:py-2.5 dark:border-slate-800 dark:bg-slate-950/95">
                 {/* Brand Avatar */}
-                <div className="relative flex size-8 sm:size-9.5 items-center justify-center rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 text-xs sm:text-sm font-bold text-white shadow-sm">
+                <div className="relative flex size-8 items-center justify-center rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 text-xs font-bold text-white shadow-sm sm:size-9.5 sm:text-sm">
                   <span>N</span>
                   {/* Online indicator green dot */}
-                  <span className="absolute right-0 bottom-0 size-2 sm:size-2.5 rounded-full border-2 border-white dark:border-slate-950 bg-emerald-500" />
+                  <span className="absolute right-0 bottom-0 size-2 rounded-full border-2 border-white bg-emerald-500 sm:size-2.5 dark:border-slate-950" />
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-[11.5px] sm:text-xs font-bold text-slate-900 dark:text-white tracking-tight">
+                  <h4 className="text-[11.5px] font-bold tracking-tight text-slate-900 sm:text-xs dark:text-white">
                     {hero.mock.brandName || "Your Brand"}
                   </h4>
-                  <p className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                  <p className="flex items-center gap-1 text-[10px] font-medium text-slate-500 sm:text-[11px] dark:text-slate-400">
                     <span className="size-1.5 rounded-full bg-emerald-500" />
                     {hero.mock.activeStatus || "Active now"}
                   </p>
                 </div>
 
                 {/* Audio / Video Icons */}
-                <div className="flex items-center gap-2.5 sm:gap-3 text-blue-600 dark:text-blue-400">
+                <div className="flex items-center gap-2.5 text-blue-600 sm:gap-3 dark:text-blue-400">
                   <button
                     type="button"
                     aria-label="Phone Call"
                     className="rounded-full p-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
-                    <Phone className="size-4 sm:size-4.5 fill-blue-600/10 dark:fill-blue-400/20" />
+                    <Phone className="size-4 fill-blue-600/10 sm:size-4.5 dark:fill-blue-400/20" />
                   </button>
                   <button
                     type="button"
                     aria-label="Video Call"
                     className="rounded-full p-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
-                    <Video className="size-4.5 sm:size-5 fill-blue-600/10 dark:fill-blue-400/20" />
+                    <Video className="size-4.5 fill-blue-600/10 sm:size-5 dark:fill-blue-400/20" />
                   </button>
                 </div>
               </div>
 
               {/* Chat Message Scrollable Body */}
-              <div className="space-y-3 sm:space-y-3.5 bg-gradient-to-b from-slate-50/90 to-white dark:from-slate-900/90 dark:to-slate-950 px-3 sm:px-3.5 py-3 sm:py-4 text-xs">
+              <div className="space-y-3 bg-gradient-to-b from-slate-50/90 to-white px-3 py-3 text-xs sm:space-y-3.5 sm:px-3.5 sm:py-4 dark:from-slate-900/90 dark:to-slate-950">
                 {/* Timestamp Pill */}
                 <div className="flex justify-center">
-                  <span className="rounded-full bg-slate-200/70 dark:bg-slate-800 px-2 sm:px-2.5 py-0.5 text-[9px] sm:text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                  <span className="rounded-full bg-slate-200/70 px-2 py-0.5 text-[9px] font-medium text-slate-500 sm:px-2.5 sm:text-[10px] dark:bg-slate-800 dark:text-slate-400">
                     {hero.mock.time || "10:24 AM"}
                   </span>
                 </div>
 
                 {/* 1. Customer Message Bubble (Inbound) */}
-                <div className="max-w-[90%] sm:max-w-[88%] rounded-2xl rounded-tl-sm border border-slate-200/80 dark:border-slate-800 bg-slate-100/95 dark:bg-slate-800/90 p-2.5 sm:p-3.5 text-slate-800 dark:text-slate-100 shadow-xs">
-                  <p className="whitespace-pre-line text-[11px] sm:text-[11.5px] leading-relaxed font-bangla font-medium">
+                <div className="max-w-[90%] rounded-2xl rounded-tl-sm border border-slate-200/80 bg-slate-100/95 p-2.5 text-slate-800 shadow-xs sm:max-w-[88%] sm:p-3.5 dark:border-slate-800 dark:bg-slate-800/90 dark:text-slate-100">
+                  <p className="font-bangla text-[11px] leading-relaxed font-medium whitespace-pre-line sm:text-[11.5px]">
                     {hero.mock.customerMessage ||
                       "ভাই, ওইটা লাল টি-শার্টটা আছে? XL সাইজ নিবো ভাই।\nঠিকানা: মিরপুর, ঢাকা।\nফোন: 01812XXXXXX"}
                   </p>
                 </div>
 
                 {/* Bot Label Tag */}
-                <div className="flex items-center gap-1.5 pl-1 text-[10.5px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                  <span className="flex size-4 sm:size-4.5 items-center justify-center rounded-full bg-blue-600 text-[8.5px] sm:text-[9px] font-bold text-white shadow-xs">
+                <div className="flex items-center gap-1.5 pl-1 text-[10.5px] font-semibold text-slate-700 sm:text-[11px] dark:text-slate-300">
+                  <span className="flex size-4 items-center justify-center rounded-full bg-blue-600 text-[8.5px] font-bold text-white shadow-xs sm:size-4.5 sm:text-[9px]">
                     N
                   </span>
                   <span>{hero.mock.botName || "Nishchit AI"}</span>
-                  <span className="ml-1 inline-flex items-center gap-0.5 rounded-full bg-violet-100 dark:bg-violet-950/70 px-1.5 py-0.2 text-[8.5px] sm:text-[9px] font-medium text-violet-700 dark:text-violet-300">
+                  <span className="py-0.2 ml-1 inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 text-[8.5px] font-medium text-violet-700 sm:text-[9px] dark:bg-violet-950/70 dark:text-violet-300">
                     <Sparkles className="size-2.5" /> AI
                   </span>
                 </div>
 
                 {/* 2. Messenger Generic Template / Receipt Card */}
-                <div className="overflow-hidden rounded-2xl border border-emerald-500/30 dark:border-emerald-500/30 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-xs">
+                <div className="overflow-hidden rounded-2xl border border-emerald-500/30 bg-emerald-50/70 shadow-xs dark:border-emerald-500/30 dark:bg-emerald-950/30">
                   {/* Card Title Banner */}
-                  <div className="flex items-center gap-1.5 border-b border-emerald-500/15 bg-emerald-100/60 dark:bg-emerald-900/40 px-2.5 sm:px-3 py-1.5 sm:py-2 text-emerald-800 dark:text-emerald-300 font-bangla">
-                    <span className="flex size-3.5 sm:size-4 items-center justify-center rounded-full bg-emerald-600 text-white">
+                  <div className="font-bangla flex items-center gap-1.5 border-b border-emerald-500/15 bg-emerald-100/60 px-2.5 py-1.5 text-emerald-800 sm:px-3 sm:py-2 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    <span className="flex size-3.5 items-center justify-center rounded-full bg-emerald-600 text-white sm:size-4">
                       <Check className="size-2.5 stroke-[3]" />
                     </span>
-                    <span className="text-[10.5px] sm:text-[11.5px] font-bold">
+                    <span className="text-[10.5px] font-bold sm:text-[11.5px]">
                       {hero.mock.orderSummaryTitle || "অর্ডার ডিটেইলস (AI দ্বারা প্রস্তুত)"}
                     </span>
                   </div>
 
                   {/* Product Details Item */}
                   <div className="p-2 sm:p-2.5">
-                    <div className="flex items-center gap-2.5 sm:gap-3 rounded-xl border border-emerald-600/15 bg-white/95 dark:bg-slate-900/90 p-2 sm:p-2.5 shadow-xs">
-                      <div className="relative size-12 sm:size-14 shrink-0 overflow-hidden rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+                    <div className="flex items-center gap-2.5 rounded-xl border border-emerald-600/15 bg-white/95 p-2 shadow-xs sm:gap-3 sm:p-2.5 dark:bg-slate-900/90">
+                      <div className="relative size-12 shrink-0 overflow-hidden rounded-lg border border-slate-100 bg-slate-50 sm:size-14 dark:border-slate-800 dark:bg-slate-800">
                         <Image
                           src={hero.mock.productImage || "/red-tshirt.jpg"}
                           alt={hero.mock.productName || "T-Shirt (Red)"}
@@ -223,13 +223,13 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
                         />
                       </div>
                       <div className="min-w-0 flex-1 leading-snug">
-                        <p className="font-bold text-slate-900 dark:text-white text-[11px] sm:text-xs">
+                        <p className="text-[11px] font-bold text-slate-900 sm:text-xs dark:text-white">
                           {hero.mock.productName || "T-Shirt (Red)"}
                         </p>
-                        <p className="text-[10px] sm:text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                        <p className="text-[10px] font-medium text-slate-600 sm:text-[11px] dark:text-slate-300">
                           {hero.mock.productSize || "Size: XL"}
                         </p>
-                        <p className="mt-0.5 font-bold text-slate-900 dark:text-emerald-400 text-[11px] sm:text-xs">
+                        <p className="mt-0.5 text-[11px] font-bold text-slate-900 sm:text-xs dark:text-emerald-400">
                           {hero.mock.productPrice || "Price: ৳ 550"}
                         </p>
                       </div>
@@ -238,15 +238,15 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
                 </div>
 
                 {/* 3. Messenger Quick Replies / Structured Button Card */}
-                <div className="rounded-2xl border border-emerald-500/30 dark:border-emerald-500/30 bg-emerald-50/70 dark:bg-emerald-950/30 p-2.5 sm:p-3 shadow-xs font-bangla">
-                  <p className="mb-1.5 sm:mb-2 text-center text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-100">
+                <div className="font-bangla rounded-2xl border border-emerald-500/30 bg-emerald-50/70 p-2.5 shadow-xs sm:p-3 dark:border-emerald-500/30 dark:bg-emerald-950/30">
+                  <p className="mb-1.5 text-center text-[11px] font-bold text-slate-800 sm:mb-2 sm:text-xs dark:text-slate-100">
                     {hero.mock.confirmQuestion || "অর্ডারটি কনফার্ম করতে চান?"}
                   </p>
                   <div className="space-y-1.5">
                     {/* Primary Button */}
                     <button
                       type="button"
-                      className="group flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 py-1.5 sm:py-2 text-center text-[11px] sm:text-xs font-bold text-white shadow-md shadow-indigo-500/30 transition-transform active:scale-95 hover:opacity-95"
+                      className="group flex w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 py-1.5 text-center text-[11px] font-bold text-white shadow-md shadow-indigo-500/30 transition-transform hover:opacity-95 active:scale-95 sm:py-2 sm:text-xs"
                     >
                       <Check className="size-3.5 stroke-[2.5]" />
                       <span>{hero.mock.confirmAction || "হ্যাঁ, কনফার্ম করুন"}</span>
@@ -254,7 +254,7 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
                     {/* Secondary Button */}
                     <button
                       type="button"
-                      className="w-full rounded-full border border-slate-200/90 dark:border-slate-700 bg-white/95 dark:bg-slate-800 py-1 sm:py-1.5 text-center text-[10.5px] sm:text-xs font-semibold text-blue-600 dark:text-blue-400 shadow-2xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-700"
+                      className="w-full rounded-full border border-slate-200/90 bg-white/95 py-1 text-center text-[10.5px] font-semibold text-blue-600 shadow-2xs transition-colors hover:bg-slate-50 sm:py-1.5 sm:text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-blue-400 dark:hover:bg-slate-700"
                     >
                       {hero.mock.modifyAction || "না, পরিবর্তন চাই"}
                     </button>
@@ -263,37 +263,37 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
               </div>
 
               {/* Messenger Bottom Input Bar */}
-              <div className="flex items-center gap-2 sm:gap-2.5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 sm:py-2.5 text-blue-600 dark:text-blue-400">
+              <div className="flex items-center gap-2 border-t border-slate-100 bg-white px-3 py-2 text-blue-600 sm:gap-2.5 sm:py-2.5 dark:border-slate-800 dark:bg-slate-950 dark:text-blue-400">
                 <button
                   type="button"
                   aria-label="Add"
-                  className="flex size-6 sm:size-7 items-center justify-center rounded-full bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm"
+                  className="flex size-6 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-600 sm:size-7 sm:text-sm dark:bg-slate-800 dark:text-blue-400"
                 >
                   +
                 </button>
-                <div className="flex flex-1 items-center justify-between rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 sm:px-3 py-1 sm:py-1.5 text-slate-400">
+                <div className="flex flex-1 items-center justify-between rounded-full bg-slate-100 px-2.5 py-1 text-slate-400 sm:px-3 sm:py-1.5 dark:bg-slate-800">
                   <span className="text-[11px] sm:text-xs">Aa</span>
-                  <span className="text-[11px] sm:text-xs font-mono">🙂</span>
+                  <span className="font-mono text-[11px] sm:text-xs">🙂</span>
                 </div>
                 <button
                   type="button"
                   aria-label="Like"
-                  className="size-6 sm:size-7 rounded-full flex items-center justify-center hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors text-xs sm:text-sm"
+                  className="flex size-6 items-center justify-center rounded-full text-xs transition-colors hover:bg-blue-50 sm:size-7 sm:text-sm dark:hover:bg-slate-800"
                 >
                   👍
                 </button>
               </div>
 
               {/* iOS Home Indicator Bar */}
-              <div className="flex justify-center bg-white dark:bg-slate-950 pb-1 pt-0.5">
-                <div className="h-1 w-24 sm:w-28 rounded-full bg-slate-800/80 dark:bg-slate-400/80" />
+              <div className="flex justify-center bg-white pt-0.5 pb-1 dark:bg-slate-950">
+                <div className="h-1 w-24 rounded-full bg-slate-800/80 sm:w-28 dark:bg-slate-400/80" />
               </div>
             </div>
           </div>
         </div>
 
         {/* ==================== 2. VISIBLE NEON CONNECTING ARC & DESKTOP FLOW CARDS (LG ONLY) ==================== */}
-        <div className="relative z-30 hidden lg:flex lg:-ml-5 lg:w-auto lg:flex-row lg:items-center">
+        <div className="relative z-30 hidden lg:-ml-5 lg:flex lg:w-auto lg:flex-row lg:items-center">
           {/* Prominent High-Contrast SVG Arc */}
           <div className="pointer-events-none relative h-[420px] w-28 shrink-0">
             <svg
@@ -365,12 +365,7 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
                       stroke="#ffffff"
                       strokeWidth={isActive ? "2" : "1.5"}
                     />
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={isActive ? "3" : "2"}
-                      fill="#ffffff"
-                    />
+                    <circle cx={cx} cy={cy} r={isActive ? "3" : "2"} fill="#ffffff" />
                     <line
                       x1={cx}
                       y1={cy}
@@ -398,8 +393,8 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
                   onClick={() => setActiveStep(idx)}
                   className={`hero-flow-card group relative flex cursor-pointer items-center justify-between gap-3.5 rounded-2xl border px-4 py-3.5 backdrop-blur-xl transition-all duration-300 ${
                     isActive
-                      ? "border-sky-400/90 bg-gradient-to-r from-sky-500/30 via-indigo-600/25 to-purple-600/25 shadow-[0_0_32px_rgba(56,189,248,0.45)] translate-x-1.5"
-                      : "border-white/20 bg-slate-900/60 hover:border-white/40 hover:bg-slate-900/80 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+                      ? "translate-x-1.5 border-sky-400/90 bg-gradient-to-r from-sky-500/30 via-indigo-600/25 to-purple-600/25 shadow-[0_0_32px_rgba(56,189,248,0.45)]"
+                      : "border-white/20 bg-slate-900/60 shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:border-white/40 hover:bg-slate-900/80"
                   }`}
                   style={{
                     animationDelay: `${idx * 150}ms`,
@@ -423,7 +418,7 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
 
                   <div className="flex items-center">
                     {isActive ? (
-                      <span className="size-2.5 rounded-full bg-sky-300 shadow-[0_0_10px_#38bdf8] animate-pulse" />
+                      <span className="size-2.5 animate-pulse rounded-full bg-sky-300 shadow-[0_0_10px_#38bdf8]" />
                     ) : (
                       <ChevronRight className="size-4 text-white/40 transition-transform group-hover:translate-x-0.5 group-hover:text-white/80" />
                     )}
@@ -437,4 +432,3 @@ export function HeroVisual({ hero }: { hero: HeroContent }) {
     </div>
   );
 }
-

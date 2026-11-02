@@ -38,7 +38,7 @@ export function AppSidebar() {
       <SidebarContent className="gap-3">
         {dashboardNavGroups.map((group) => (
           <SidebarGroup key={group.label}>
-            <SidebarGroupLabel className="text-[11px] font-semibold tracking-wide text-muted-foreground/80 uppercase">
+            <SidebarGroupLabel className="text-muted-foreground/80 text-[11px] font-semibold tracking-wide uppercase">
               {group.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>

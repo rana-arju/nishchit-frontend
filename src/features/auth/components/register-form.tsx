@@ -51,7 +51,9 @@ export function RegisterForm() {
 
   return (
     <div>
-      <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">{register.eyebrow}</p>
+      <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
+        {register.eyebrow}
+      </p>
       <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">
         {register.title}
       </h1>
@@ -74,7 +76,10 @@ export function RegisterForm() {
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="register-name" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label
+              htmlFor="register-name"
+              className="text-sm font-medium text-slate-700 dark:text-slate-200"
+            >
               {register.nameLabel}
             </label>
             <Input
@@ -85,11 +90,14 @@ export function RegisterForm() {
               aria-invalid={Boolean(errors.name)}
               className="mt-2 h-11"
             />
-            {errors.name && <p className="mt-1.5 text-xs text-destructive">{errors.name}</p>}
+            {errors.name && <p className="text-destructive mt-1.5 text-xs">{errors.name}</p>}
           </div>
 
           <div>
-            <label htmlFor="register-shop" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label
+              htmlFor="register-shop"
+              className="text-sm font-medium text-slate-700 dark:text-slate-200"
+            >
               {register.shopLabel}
             </label>
             <Input
@@ -100,12 +108,15 @@ export function RegisterForm() {
               aria-invalid={Boolean(errors.shop)}
               className="mt-2 h-11"
             />
-            {errors.shop && <p className="mt-1.5 text-xs text-destructive">{errors.shop}</p>}
+            {errors.shop && <p className="text-destructive mt-1.5 text-xs">{errors.shop}</p>}
           </div>
         </div>
 
         <div>
-          <label htmlFor="register-email" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          <label
+            htmlFor="register-email"
+            className="text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
             {register.emailLabel}
           </label>
           <Input
@@ -117,12 +128,15 @@ export function RegisterForm() {
             aria-invalid={Boolean(errors.email)}
             className="mt-2 h-11"
           />
-          {errors.email && <p className="mt-1.5 text-xs text-destructive">{errors.email}</p>}
+          {errors.email && <p className="text-destructive mt-1.5 text-xs">{errors.email}</p>}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="register-password" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label
+              htmlFor="register-password"
+              className="text-sm font-medium text-slate-700 dark:text-slate-200"
+            >
               {register.passwordLabel}
             </label>
             <PasswordInput
@@ -133,7 +147,9 @@ export function RegisterForm() {
               aria-invalid={Boolean(errors.password)}
               className="mt-2 h-11"
             />
-            {errors.password && <p className="mt-1.5 text-xs text-destructive">{errors.password}</p>}
+            {errors.password && (
+              <p className="text-destructive mt-1.5 text-xs">{errors.password}</p>
+            )}
           </div>
 
           <div>
@@ -152,7 +168,7 @@ export function RegisterForm() {
               className="mt-2 h-11"
             />
             {errors.confirmPassword && (
-              <p className="mt-1.5 text-xs text-destructive">{errors.confirmPassword}</p>
+              <p className="text-destructive mt-1.5 text-xs">{errors.confirmPassword}</p>
             )}
           </div>
         </div>

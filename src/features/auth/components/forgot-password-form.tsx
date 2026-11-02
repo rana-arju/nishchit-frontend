@@ -6,7 +6,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authContent } from "@/features/auth/content";
-import { createForgotPasswordSchema, type ForgotPasswordValues } from "@/features/auth/schemas/auth";
+import {
+  createForgotPasswordSchema,
+  type ForgotPasswordValues,
+} from "@/features/auth/schemas/auth";
 
 type FormErrors = Partial<Record<keyof ForgotPasswordValues, string>>;
 
@@ -72,7 +75,10 @@ export function ForgotPasswordForm() {
 
       <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
         <div>
-          <label htmlFor="forgot-email" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          <label
+            htmlFor="forgot-email"
+            className="text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
             {forgotPassword.emailLabel}
           </label>
           <Input
@@ -84,7 +90,7 @@ export function ForgotPasswordForm() {
             aria-invalid={Boolean(errors.email)}
             className="mt-2 h-11"
           />
-          {errors.email && <p className="mt-1.5 text-xs text-destructive">{errors.email}</p>}
+          {errors.email && <p className="text-destructive mt-1.5 text-xs">{errors.email}</p>}
         </div>
 
         <Button

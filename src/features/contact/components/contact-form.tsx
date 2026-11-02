@@ -77,9 +77,7 @@ export function ContactForm() {
             aria-invalid={Boolean(errors.name)}
             className="mt-2 h-11"
           />
-          {errors.name && (
-            <p className="mt-1.5 text-xs text-destructive">{errors.name}</p>
-          )}
+          {errors.name && <p className="text-destructive mt-1.5 text-xs">{errors.name}</p>}
         </div>
 
         <div className="sm:col-span-1">
@@ -99,9 +97,7 @@ export function ContactForm() {
             aria-invalid={Boolean(errors.email)}
             className="mt-2 h-11"
           />
-          {errors.email && (
-            <p className="mt-1.5 text-xs text-destructive">{errors.email}</p>
-          )}
+          {errors.email && <p className="text-destructive mt-1.5 text-xs">{errors.email}</p>}
         </div>
 
         <div className="sm:col-span-2">
@@ -120,9 +116,7 @@ export function ContactForm() {
             aria-invalid={Boolean(errors.message)}
             className="mt-2 min-h-32"
           />
-          {errors.message && (
-            <p className="mt-1.5 text-xs text-destructive">{errors.message}</p>
-          )}
+          {errors.message && <p className="text-destructive mt-1.5 text-xs">{errors.message}</p>}
         </div>
       </div>
 

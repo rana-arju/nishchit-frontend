@@ -67,7 +67,10 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <div>
-          <label htmlFor="login-email" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          <label
+            htmlFor="login-email"
+            className="text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
             {login.emailLabel}
           </label>
           <Input
@@ -79,12 +82,15 @@ export function LoginForm() {
             aria-invalid={Boolean(errors.email)}
             className="mt-2 h-11"
           />
-          {errors.email && <p className="mt-1.5 text-xs text-destructive">{errors.email}</p>}
+          {errors.email && <p className="text-destructive mt-1.5 text-xs">{errors.email}</p>}
         </div>
 
         <div>
           <div className="flex items-center justify-between">
-            <label htmlFor="login-password" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label
+              htmlFor="login-password"
+              className="text-sm font-medium text-slate-700 dark:text-slate-200"
+            >
               {login.passwordLabel}
             </label>
             <Link
@@ -102,7 +108,7 @@ export function LoginForm() {
             aria-invalid={Boolean(errors.password)}
             className="mt-2 h-11"
           />
-          {errors.password && <p className="mt-1.5 text-xs text-destructive">{errors.password}</p>}
+          {errors.password && <p className="text-destructive mt-1.5 text-xs">{errors.password}</p>}
         </div>
 
         <Button

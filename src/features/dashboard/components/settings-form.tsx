@@ -27,7 +27,9 @@ export function SettingsForm() {
   const [shopSaved, setShopSaved] = useState(false);
 
   const [password, setPassword] = useState({ password: "", confirmPassword: "" });
-  const [passwordErrors, setPasswordErrors] = useState<Partial<Record<"password" | "confirmPassword", string>>>({});
+  const [passwordErrors, setPasswordErrors] = useState<
+    Partial<Record<"password" | "confirmPassword", string>>
+  >({});
   const [passwordSaved, setPasswordSaved] = useState(false);
 
   function handleShopSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -88,9 +90,7 @@ export function SettingsForm() {
               Save
             </Button>
             {shopSaved && (
-              <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                Saved.
-              </p>
+              <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Saved.</p>
             )}
           </form>
         </CardContent>

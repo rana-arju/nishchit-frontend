@@ -42,9 +42,7 @@ export function ProductsManager() {
             <Input
               placeholder="Category"
               value={draft.category}
-              onChange={(event) =>
-                setDraft((prev) => ({ ...prev, category: event.target.value }))
-              }
+              onChange={(event) => setDraft((prev) => ({ ...prev, category: event.target.value }))}
               className="h-10"
             />
             <Input

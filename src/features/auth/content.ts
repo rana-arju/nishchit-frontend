@@ -2,8 +2,7 @@ export const authContent = {
   panel: {
     eyebrow: "AI Order Assistant for Facebook Sellers",
     title: "চ্যাট থেকে ডেলিভারি — সব এক জায়গায়",
-    description:
-      "লগইন করে দেখুন Nishchit কীভাবে আপনার প্রতিদিনের অর্ডার ব্যবস্থাপনা সহজ করে দেয়।",
+    description: "লগইন করে দেখুন Nishchit কীভাবে আপনার প্রতিদিনের অর্ডার ব্যবস্থাপনা সহজ করে দেয়।",
   },
   login: {
     eyebrow: "স্বাগতম",

@@ -5,19 +5,12 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export function PasswordInput({
-  className,
-  ...props
-}: React.ComponentProps<typeof Input>) {
+export function PasswordInput({ className, ...props }: React.ComponentProps<typeof Input>) {
   const [visible, setVisible] = useState(false);
 
   return (
     <div className="relative">
-      <Input
-        type={visible ? "text" : "password"}
-        className={cn("pr-10", className)}
-        {...props}
-      />
+      <Input type={visible ? "text" : "password"} className={cn("pr-10", className)} {...props} />
       <button
         type="button"
         onClick={() => setVisible((prev) => !prev)}

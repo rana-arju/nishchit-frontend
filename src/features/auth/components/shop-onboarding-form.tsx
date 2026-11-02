@@ -51,7 +51,10 @@ export function ShopOnboardingForm() {
 
       <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
         <div>
-          <label htmlFor="onboarding-shop" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          <label
+            htmlFor="onboarding-shop"
+            className="text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
             {onboarding.shopLabel}
           </label>
           <Input
@@ -62,7 +65,7 @@ export function ShopOnboardingForm() {
             aria-invalid={Boolean(errors.shop)}
             className="mt-2 h-11"
           />
-          {errors.shop && <p className="mt-1.5 text-xs text-destructive">{errors.shop}</p>}
+          {errors.shop && <p className="text-destructive mt-1.5 text-xs">{errors.shop}</p>}
         </div>
 
         <Button

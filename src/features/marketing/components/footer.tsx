@@ -5,7 +5,7 @@ export function Footer() {
   const { brand, navigation, footer } = marketingContent;
 
   return (
-    <footer className="relative isolate overflow-hidden border-t bg-background">
+    <footer className="bg-background relative isolate overflow-hidden border-t">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr] lg:gap-8">
           <div>

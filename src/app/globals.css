@@ -252,7 +252,12 @@
   .hero-phone-glow {
     position: absolute;
     inset: -20px;
-    background: radial-gradient(circle at 75% 75%, rgba(192, 38, 211, 0.45), rgba(14, 165, 233, 0.25) 50%, transparent 70%);
+    background: radial-gradient(
+      circle at 75% 75%,
+      rgba(192, 38, 211, 0.45),
+      rgba(14, 165, 233, 0.25) 50%,
+      transparent 70%
+    );
     filter: blur(35px);
     z-index: 0;
     pointer-events: none;
@@ -265,7 +270,10 @@
   }
 
   .hero-flow-card {
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    transition:
+      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
   }
 
   .hero-flow-card:hover {
@@ -295,7 +303,8 @@
 }
 
 @keyframes hero-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
@@ -304,7 +313,8 @@
 }
 
 @keyframes pulse-dot {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.9;
   }
@@ -316,7 +326,8 @@
 }
 
 @keyframes neon-glow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.65;
   }
   50% {

@@ -1,4 +1,4 @@
-import { HealthStatusCard } from "@/features/dashboard/components/health-status-card";
+import { OverviewDashboard } from "@/features/dashboard/components/overview-dashboard";
 
 export default function DashboardPage() {
   return (
@@ -7,9 +7,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
         <p className="text-muted-foreground text-sm">Welcome back to Nishchit.</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <HealthStatusCard />
-      </div>
+      <OverviewDashboard />
     </div>
   );
 }

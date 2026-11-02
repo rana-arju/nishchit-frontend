@@ -155,34 +155,34 @@ export const marketingContent = {
       {
         key: "inbox",
         title: "AI Inbox",
-        description:
-          "Understands Bangla, Banglish & English messages and extracts order details.",
+        description: "Understands Bangla, Banglish & English messages and extracts order details.",
         gradient: "from-purple-500/10 via-indigo-500/5 to-transparent",
-        badgeColor: "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/60",
+        badgeColor:
+          "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200/60 dark:border-purple-800/60",
       },
       {
         key: "risk",
         title: "Risk Detection",
-        description:
-          "Finds fake or high-return orders early with smart risk score.",
+        description: "Finds fake or high-return orders early with smart risk score.",
         gradient: "from-blue-500/10 via-sky-500/5 to-transparent",
-        badgeColor: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60",
+        badgeColor:
+          "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60",
       },
       {
         key: "courier",
         title: "One-Click Courier Booking",
-        description:
-          "Book with Steadfast, Pathao or RedX and track deliveries automatically.",
+        description: "Book with Steadfast, Pathao or RedX and track deliveries automatically.",
         gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
-        badgeColor: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/60",
+        badgeColor:
+          "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/60",
       },
       {
         key: "dashboard",
         title: "Seller Dashboard",
-        description:
-          "Orders, customer history, return rate and cost per order — all in one place.",
+        description: "Orders, customer history, return rate and cost per order — all in one place.",
         gradient: "from-pink-500/10 via-rose-500/5 to-transparent",
-        badgeColor: "text-pink-600 bg-pink-50 dark:bg-pink-950/50 dark:text-pink-300 border-pink-200/60 dark:border-pink-800/60",
+        badgeColor:
+          "text-pink-600 bg-pink-50 dark:bg-pink-950/50 dark:text-pink-300 border-pink-200/60 dark:border-pink-800/60",
       },
     ],
   },
@@ -244,7 +244,8 @@ export const marketingContent = {
       {
         key: "courier",
         title: "বাংলাদেশের জন্য তৈরি",
-        description: "বাংলা, বাংলিশ ও ইংরেজি বার্তা বোঝে এবং স্থানীয় কুরিয়ার পার্টনারদের সাথে কাজ করে।",
+        description:
+          "বাংলা, বাংলিশ ও ইংরেজি বার্তা বোঝে এবং স্থানীয় কুরিয়ার পার্টনারদের সাথে কাজ করে।",
       },
     ],
   },
