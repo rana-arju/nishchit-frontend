@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/features/dashboard/components/empty-state";
 import { fetchProducts } from "@/features/products/api/products";
 import { ProductCard } from "@/features/products/components/product-card";
@@ -28,6 +29,7 @@ export function ProductsView() {
   const [query, setQuery] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,7 +72,6 @@ export function ProductsView() {
   }
 
   function deleteProduct(id: string) {
-    if (!window.confirm("আপনি কি নিশ্চিতভাবে এই পণ্যটি মুছে ফেলতে চান?")) return;
     setState((current) =>
       current.phase === "ready"
         ? { ...current, data: current.data.filter((product) => product.id !== id) }
@@ -215,7 +216,7 @@ export function ProductsView() {
                 key={product.id}
                 product={product}
                 onEdit={() => openEditForm(product.id)}
-                onDelete={() => deleteProduct(product.id)}
+                onDelete={() => setPendingDeleteId(product.id)}
               />
             ))}
           </div>
@@ -230,6 +231,20 @@ export function ProductsView() {
           if (!open) setEditingId(null);
         }}
         onSubmit={submitForm}
+      />
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null);
+        }}
+        title="পণ্য মুছে ফেলুন"
+        description="আপনি কি নিশ্চিতভাবে এই পণ্যটি মুছে ফেলতে চান?"
+        confirmLabel="মুছে ফেলুন"
+        onConfirm={() => {
+          if (pendingDeleteId) deleteProduct(pendingDeleteId);
+          setPendingDeleteId(null);
+        }}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { CategoriesManager } from "@/features/dashboard/components/categories-manager";
+import { CategoriesView } from "@/features/categories/components/categories-view";
 
 export default function CategoriesPage() {
   return (
@@ -7,7 +7,7 @@ export default function CategoriesPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Categories</h1>
         <p className="text-muted-foreground text-sm">Organize your products into categories.</p>
       </div>
-      <CategoriesManager />
+      <CategoriesView />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
   Truck,
 } from "lucide-react";
 import { useState } from "react";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { TagPill } from "@/components/shared/tag-pill";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,6 +69,7 @@ function OrderDetailBody({
 }: OrderDetailBodyProps) {
   const [tagInput, setTagInput] = useState("");
   const [noteInput, setNoteInput] = useState("");
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const total = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   function submitTag() {
@@ -103,9 +105,7 @@ function OrderDetailBody({
             size="icon-sm"
             variant="outline"
             aria-label="অর্ডার মুছুন"
-            onClick={() => {
-              if (window.confirm("আপনি কি নিশ্চিতভাবে এই অর্ডারটি মুছে ফেলতে চান?")) onDelete();
-            }}
+            onClick={() => setDeleteConfirmOpen(true)}
           >
             <Trash2 className="text-destructive size-3.5" />
           </Button>
@@ -247,6 +247,15 @@ function OrderDetailBody({
           </Button>
         </section>
       </div>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="অর্ডার মুছে ফেলুন"
+        description="আপনি কি নিশ্চিতভাবে এই অর্ডারটি মুছে ফেলতে চান?"
+        confirmLabel="মুছে ফেলুন"
+        onConfirm={onDelete}
+      />
     </>
   );
 }
