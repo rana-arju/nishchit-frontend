@@ -104,12 +104,7 @@ export function InboxView() {
             {channel.key === "all" ? (
               <Inbox className="size-3.5" aria-hidden="true" />
             ) : (
-              <ChannelIcon
-                channel={channel.key}
-                branded
-                className="size-3.5"
-                aria-hidden="true"
-              />
+              <ChannelIcon channel={channel.key} branded className="size-3.5" aria-hidden="true" />
             )}
             {channel.label}
             {!channel.available && <span className="text-[10px]">(soon)</span>}

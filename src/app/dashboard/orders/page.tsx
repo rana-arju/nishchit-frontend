@@ -1,5 +1,4 @@
-import { ClipboardList } from "lucide-react";
-import { EmptyState } from "@/features/dashboard/components/empty-state";
+import { OrdersView } from "@/features/orders/components/orders-view";
 
 export default function OrdersPage() {
   return (
@@ -10,11 +9,7 @@ export default function OrdersPage() {
           Orders captured from Messenger will show up here.
         </p>
       </div>
-      <EmptyState
-        icon={ClipboardList}
-        title="No orders yet"
-        description="Once Nishchit starts reading customer messages, confirmed and pending orders will appear in this list."
-      />
+      <OrdersView />
     </div>
   );
 }
