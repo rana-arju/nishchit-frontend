@@ -1,4 +1,4 @@
-import { ProductsManager } from "@/features/dashboard/components/products-manager";
+import { ProductsView } from "@/features/products/components/products-view";
 
 export default function ProductsPage() {
   return (
@@ -9,7 +9,7 @@ export default function ProductsPage() {
           Keep your catalog up to date — the AI chatbot uses it to answer customers.
         </p>
       </div>
-      <ProductsManager />
+      <ProductsView />
     </div>
   );
 }
