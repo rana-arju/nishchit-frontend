@@ -7,28 +7,34 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/features/dashboard/components/empty-state";
-import { fetchProducts } from "@/features/products/api/products";
+import { fetchCategories } from "@/features/categories/api/categories";
+import type { Category } from "@/features/categories/schemas/category";
+import {
+  createProduct,
+  deleteProduct,
+  fetchProducts,
+  updateProduct,
+} from "@/features/products/api/products";
 import { ProductCard } from "@/features/products/components/product-card";
 import {
   type ProductFormValues,
   ProductFormSheet,
 } from "@/features/products/components/product-form-sheet";
 import { ProductsSummary } from "@/features/products/components/products-summary";
-import {
-  PRODUCT_CATEGORIES,
-  type Product,
-  type ProductCategory,
-} from "@/features/products/schemas/product";
+import type { Product } from "@/features/products/schemas/product";
+import { ApiError } from "@/lib/api-client";
 import { cn } from "cn";
 
 type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data: Product[] };
 
 export function ProductsView() {
   const [state, setState] = useState<State>({ phase: "loading" });
-  const [activeCategory, setActiveCategory] = useState<"all" | ProductCategory>("all");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategory, setActiveCategory] = useState<"all" | string>("all");
   const [query, setQuery] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,6 +48,14 @@ export function ProductsView() {
         if (!cancelled) setState({ phase: "error" });
       });
 
+    fetchCategories()
+      .then((data) => {
+        if (!cancelled) setCategories(data);
+      })
+      .catch(() => {
+        if (!cancelled) setCategories([]);
+      });
+
     return () => {
       cancelled = true;
     };
@@ -53,7 +67,7 @@ export function ProductsView() {
     const normalized = query.trim().toLowerCase();
     const source = state.phase === "ready" ? state.data : [];
     return source.filter((product) => {
-      const matchesCategory = activeCategory === "all" || product.category === activeCategory;
+      const matchesCategory = activeCategory === "all" || product.categoryId === activeCategory;
       const matchesQuery = !normalized || product.name.toLowerCase().includes(normalized);
       return matchesCategory && matchesQuery;
     });
@@ -71,57 +85,48 @@ export function ProductsView() {
     setFormOpen(true);
   }
 
-  function deleteProduct(id: string) {
-    setState((current) =>
-      current.phase === "ready"
-        ? { ...current, data: current.data.filter((product) => product.id !== id) }
-        : current,
-    );
-  }
-
-  function submitForm(values: ProductFormValues) {
-    if (!values.category) return;
-
-    if (editingId) {
+  async function handleDelete(id: string) {
+    setDeleteError(null);
+    try {
+      await deleteProduct(id);
       setState((current) =>
         current.phase === "ready"
-          ? {
-              ...current,
-              data: current.data.map((product) =>
-                product.id === editingId
-                  ? {
-                      ...product,
-                      name: values.name.trim(),
-                      description: values.description.trim(),
-                      category: values.category as ProductCategory,
-                      price: Number(values.price),
-                      discountPrice: values.discountPrice.trim()
-                        ? Number(values.discountPrice)
-                        : undefined,
-                      imageUrl: values.imageUrl ?? undefined,
-                      inStock: values.inStock,
-                    }
-                  : product,
-              ),
-            }
+          ? { ...current, data: current.data.filter((product) => product.id !== id) }
           : current,
       );
-    } else {
-      const newProduct: Product = {
-        id: `product-${Date.now()}`,
-        name: values.name.trim(),
-        description: values.description.trim(),
-        category: values.category,
-        price: Number(values.price),
-        discountPrice: values.discountPrice.trim() ? Number(values.discountPrice) : undefined,
-        imageUrl: values.imageUrl ?? undefined,
-        inStock: values.inStock,
-        createdAt: new Date().toISOString(),
-      };
-      setState((current) =>
-        current.phase === "ready" ? { ...current, data: [newProduct, ...current.data] } : current,
-      );
+    } catch (error) {
+      setDeleteError(error instanceof ApiError ? error.message : "পণ্য মুছে ফেলা যায়নি।");
     }
+  }
+
+  async function submitForm(values: ProductFormValues) {
+    if (!values.categoryId) return;
+
+    const payload = {
+      name: values.name.trim(),
+      description: values.description.trim(),
+      categoryId: values.categoryId,
+      price: Number(values.price),
+      discountPrice: values.discountPrice.trim() ? Number(values.discountPrice) : null,
+      imageUrl: values.imageUrl,
+      imagePublicId: values.imagePublicId,
+      inStock: values.inStock,
+    };
+
+    const saved = editingId
+      ? await updateProduct(editingId, payload)
+      : await createProduct(payload);
+
+    setState((current) => {
+      if (current.phase !== "ready") return current;
+      if (editingId) {
+        return {
+          ...current,
+          data: current.data.map((product) => (product.id === editingId ? saved : product)),
+        };
+      }
+      return { ...current, data: [saved, ...current.data] };
+    });
 
     setFormOpen(false);
     setEditingId(null);
@@ -154,6 +159,12 @@ export function ProductsView() {
     <div className="flex flex-col gap-4">
       <ProductsSummary products={products} />
 
+      {deleteError && (
+        <p className="font-bangla rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+          {deleteError}
+        </p>
+      )}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="scrollbar-hidden flex items-center gap-2 overflow-x-auto">
           <button
@@ -168,19 +179,19 @@ export function ProductsView() {
           >
             সব
           </button>
-          {PRODUCT_CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <button
-              key={category}
+              key={category.id}
               type="button"
-              onClick={() => setActiveCategory(category)}
+              onClick={() => setActiveCategory(category.id)}
               className={cn(
                 "font-bangla shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                activeCategory === category
+                activeCategory === category.id
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border text-muted-foreground hover:text-foreground",
               )}
             >
-              {category}
+              {category.name}
             </button>
           ))}
         </div>
@@ -242,7 +253,7 @@ export function ProductsView() {
         description="আপনি কি নিশ্চিতভাবে এই পণ্যটি মুছে ফেলতে চান?"
         confirmLabel="মুছে ফেলুন"
         onConfirm={() => {
-          if (pendingDeleteId) deleteProduct(pendingDeleteId);
+          if (pendingDeleteId) handleDelete(pendingDeleteId);
           setPendingDeleteId(null);
         }}
       />

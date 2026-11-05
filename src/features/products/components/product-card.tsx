@@ -51,7 +51,7 @@ export function ProductCard({
 
       <CardContent className="flex flex-col gap-1 p-3">
         <span className="font-bangla bg-muted text-muted-foreground w-fit rounded-full px-2 py-0.5 text-[10px] font-medium">
-          {product.category}
+          {product.categoryName}
         </span>
         <p className="font-bangla truncate text-sm font-semibold">{product.name}</p>
         <p className="font-bangla text-muted-foreground line-clamp-2 text-xs leading-relaxed">
@@ -61,7 +61,7 @@ export function ProductCard({
           <span className="text-sm font-semibold tabular-nums">
             ৳{(product.discountPrice ?? product.price).toLocaleString("bn-BD")}
           </span>
-          {product.discountPrice !== undefined && (
+          {product.discountPrice !== null && (
             <span className="text-muted-foreground text-xs tabular-nums line-through">
               ৳{product.price.toLocaleString("bn-BD")}
             </span>

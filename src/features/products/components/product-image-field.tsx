@@ -1,14 +1,16 @@
 "use client";
 
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus, Loader2, X } from "lucide-react";
 import { useRef } from "react";
 
 export function ProductImageField({
   previewUrl,
+  uploading,
   onSelect,
   onRemove,
 }: {
   previewUrl: string | null;
+  uploading: boolean;
   onSelect: (file: File) => void;
   onRemove: () => void;
 }) {
@@ -19,15 +21,21 @@ export function ProductImageField({
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="border-border bg-muted/40 hover:bg-muted relative size-20 shrink-0 overflow-hidden rounded-xl border border-dashed transition-colors"
+        disabled={uploading}
+        className="border-border bg-muted/40 hover:bg-muted relative size-20 shrink-0 overflow-hidden rounded-xl border border-dashed transition-colors disabled:cursor-not-allowed"
       >
         {previewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- local blob preview, not an optimizable remote asset
+          // eslint-disable-next-line @next/next/no-img-element -- mix of remote Cloudinary urls and local blob previews
           <img src={previewUrl} alt="" className="size-full object-cover" />
         ) : (
           <span className="text-muted-foreground flex size-full flex-col items-center justify-center gap-1">
             <ImagePlus className="size-5" />
           </span>
+        )}
+        {uploading && (
+          <div className="absolute inset-0 grid place-items-center bg-black/50">
+            <Loader2 className="size-5 animate-spin text-white" />
+          </div>
         )}
       </button>
 
@@ -35,11 +43,12 @@ export function ProductImageField({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="font-bangla text-primary text-xs font-medium hover:underline"
+          disabled={uploading}
+          className="font-bangla text-primary text-xs font-medium hover:underline disabled:opacity-50"
         >
           {previewUrl ? "ছবি পরিবর্তন করুন" : "ছবি আপলোড করুন"}
         </button>
-        {previewUrl && (
+        {previewUrl && !uploading && (
           <button
             type="button"
             onClick={onRemove}

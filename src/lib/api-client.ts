@@ -25,11 +25,14 @@ function extractErrorDetails(
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  // Let the browser set its own multipart Content-Type (with boundary) for file uploads.
+  const isFormData = init?.body instanceof FormData;
+
   const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
     ...init,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...init?.headers,
     },
   });

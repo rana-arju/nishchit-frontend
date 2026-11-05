@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,15 +16,18 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { CategorySelect } from "@/features/products/components/category-select";
 import { ProductImageField } from "@/features/products/components/product-image-field";
-import type { Product, ProductCategory } from "@/features/products/schemas/product";
+import { uploadProductImage } from "@/features/products/api/products";
+import type { Product } from "@/features/products/schemas/product";
+import { ApiError } from "@/lib/api-client";
 
 export type ProductFormValues = {
   name: string;
   description: string;
-  category: ProductCategory | null;
+  categoryId: string | null;
   price: string;
   discountPrice: string;
   imageUrl: string | null;
+  imagePublicId: string | null;
   inStock: boolean;
 };
 
@@ -32,26 +36,29 @@ function valuesFromProduct(product: Product | null): ProductFormValues {
     return {
       name: "",
       description: "",
-      category: null,
+      categoryId: null,
       price: "",
       discountPrice: "",
       imageUrl: null,
+      imagePublicId: null,
       inStock: true,
     };
   }
   return {
     name: product.name,
     description: product.description,
-    category: product.category,
+    categoryId: product.categoryId,
     price: String(product.price),
-    discountPrice: product.discountPrice !== undefined ? String(product.discountPrice) : "",
-    imageUrl: product.imageUrl ?? null,
+    discountPrice: product.discountPrice !== null ? String(product.discountPrice) : "",
+    imageUrl: product.imageUrl,
+    imagePublicId: product.imagePublicId,
     inStock: product.inStock,
   };
 }
 
-function isValid(values: ProductFormValues): boolean {
-  if (!values.name.trim() || !values.category) return false;
+function isValid(values: ProductFormValues, imageUploading: boolean): boolean {
+  if (imageUploading) return false;
+  if (!values.name.trim() || !values.categoryId) return false;
   const price = Number(values.price);
   if (!Number.isFinite(price) || price <= 0) return false;
   if (values.discountPrice.trim()) {
@@ -67,10 +74,14 @@ function ProductFormBody({
   onCancel,
 }: {
   initialProduct: Product | null;
-  onSubmit: (values: ProductFormValues) => void;
+  onSubmit: (values: ProductFormValues) => Promise<void>;
   onCancel: () => void;
 }) {
   const [values, setValues] = useState<ProductFormValues>(() => valuesFromProduct(initialProduct));
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -79,18 +90,49 @@ function ProductFormBody({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- revoke only on unmount
   }, []);
 
-  function selectImage(file: File) {
+  async function selectImage(file: File) {
+    setImageError(null);
+    const blobUrl = URL.createObjectURL(file);
     setValues((current) => {
       if (current.imageUrl?.startsWith("blob:")) URL.revokeObjectURL(current.imageUrl);
-      return { ...current, imageUrl: URL.createObjectURL(file) };
+      return { ...current, imageUrl: blobUrl, imagePublicId: null };
     });
+
+    setImageUploading(true);
+    try {
+      const uploaded = await uploadProductImage(file);
+      setValues((current) => {
+        if (current.imageUrl?.startsWith("blob:")) URL.revokeObjectURL(current.imageUrl);
+        return { ...current, imageUrl: uploaded.imageUrl, imagePublicId: uploaded.imagePublicId };
+      });
+    } catch (error) {
+      setImageError(error instanceof ApiError ? error.message : "ছবি আপলোড করা যায়নি।");
+      setValues((current) => {
+        if (current.imageUrl?.startsWith("blob:")) URL.revokeObjectURL(current.imageUrl);
+        return { ...current, imageUrl: null, imagePublicId: null };
+      });
+    } finally {
+      setImageUploading(false);
+    }
   }
 
   function removeImage() {
     setValues((current) => {
       if (current.imageUrl?.startsWith("blob:")) URL.revokeObjectURL(current.imageUrl);
-      return { ...current, imageUrl: null };
+      return { ...current, imageUrl: null, imagePublicId: null };
     });
+  }
+
+  async function handleSubmit() {
+    setFormError(null);
+    setSubmitting(true);
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      setFormError(error instanceof ApiError ? error.message : "পণ্য সংরক্ষণ করা যায়নি।");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -103,13 +145,21 @@ function ProductFormBody({
       </SheetHeader>
 
       <div className="scrollbar-hidden flex flex-1 flex-col gap-5 overflow-y-auto p-4">
+        {formError && (
+          <p className="font-bangla rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            {formError}
+          </p>
+        )}
+
         <section className="flex flex-col gap-2">
           <p className="text-muted-foreground font-bangla text-xs font-medium">পণ্যের ছবি</p>
           <ProductImageField
             previewUrl={values.imageUrl}
+            uploading={imageUploading}
             onSelect={selectImage}
             onRemove={removeImage}
           />
+          {imageError && <p className="text-destructive font-bangla text-xs">{imageError}</p>}
         </section>
 
         <section className="flex flex-col gap-2">
@@ -125,8 +175,8 @@ function ProductFormBody({
         <section className="flex flex-col gap-2">
           <p className="text-muted-foreground font-bangla text-xs font-medium">ক্যাটাগরি</p>
           <CategorySelect
-            value={values.category}
-            onChange={(category) => setValues((current) => ({ ...current, category }))}
+            value={values.categoryId}
+            onChange={(categoryId) => setValues((current) => ({ ...current, categoryId }))}
           />
         </section>
 
@@ -186,10 +236,16 @@ function ProductFormBody({
         </Button>
         <Button
           className="font-bangla flex-1"
-          disabled={!isValid(values)}
-          onClick={() => onSubmit(values)}
+          disabled={!isValid(values, imageUploading) || submitting}
+          onClick={handleSubmit}
         >
-          {initialProduct ? "আপডেট করুন" : "পণ্য যোগ করুন"}
+          {submitting ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : initialProduct ? (
+            "আপডেট করুন"
+          ) : (
+            "পণ্য যোগ করুন"
+          )}
         </Button>
       </SheetFooter>
     </>
@@ -205,7 +261,7 @@ export function ProductFormSheet({
   product: Product | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: ProductFormValues) => void;
+  onSubmit: (values: ProductFormValues) => Promise<void>;
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

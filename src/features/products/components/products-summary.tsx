@@ -30,7 +30,7 @@ function SummaryTile({
 }
 
 export function ProductsSummary({ products }: { products: Product[] }) {
-  const categoryCount = new Set(products.map((product) => product.category)).size;
+  const categoryCount = new Set(products.map((product) => product.categoryId)).size;
   const outOfStock = products.filter((product) => !product.inStock).length;
 
   return (
