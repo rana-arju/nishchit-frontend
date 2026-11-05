@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authContent } from "@/features/auth/content";
 import { createOnboardingSchema, type OnboardingValues } from "@/features/auth/schemas/auth";
+import { saveShop } from "@/features/auth/store/auth-slice";
+import { useAppDispatch } from "@/store/hooks";
 
 type FormErrors = Partial<Record<keyof OnboardingValues, string>>;
 
@@ -15,12 +17,15 @@ const initialValues: OnboardingValues = { shop: "" };
 export function ShopOnboardingForm() {
   const { onboarding } = authContent;
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [values, setValues] = useState<OnboardingValues>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setFormError(null);
 
     const result = createOnboardingSchema().safeParse(values);
     if (!result.success) {
@@ -34,7 +39,14 @@ export function ShopOnboardingForm() {
 
     setErrors({});
     setStatus("submitting");
-    router.push("/dashboard");
+
+    try {
+      await dispatch(saveShop(result.data.shop)).unwrap();
+      router.push("/dashboard");
+    } catch (error) {
+      setFormError(typeof error === "string" ? error : onboarding.submit);
+      setStatus("idle");
+    }
   }
 
   return (
@@ -50,6 +62,12 @@ export function ShopOnboardingForm() {
       </p>
 
       <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
+        {formError && (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            {formError}
+          </p>
+        )}
+
         <div>
           <label
             htmlFor="onboarding-shop"

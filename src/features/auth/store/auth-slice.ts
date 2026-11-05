@@ -5,6 +5,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  setShop,
   type LoginPayload,
   type RegisterPayload,
 } from "@/features/auth/api/auth";
@@ -67,6 +68,19 @@ export const logout = createAsyncThunk("auth/logout", async () => {
   await logoutUser();
 });
 
+export const saveShop = createAsyncThunk<AuthUser, string, { rejectValue: string }>(
+  "auth/saveShop",
+  async (shopName, { rejectWithValue }) => {
+    try {
+      return await setShop(shopName);
+    } catch (error) {
+      return rejectWithValue(
+        extractErrorMessage(error, "শপ সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"),
+      );
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -111,6 +125,9 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.status = "unauthenticated";
         state.user = null;
+      })
+      .addCase(saveShop.fulfilled, (state, action) => {
+        state.user = action.payload;
       });
   },
 });

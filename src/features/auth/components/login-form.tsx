@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authContent } from "@/features/auth/content";
 import { OauthButtons } from "@/features/auth/components/oauth-buttons";
+import { describeOauthError } from "@/features/auth/oauth-errors";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import { createLoginSchema, type LoginValues } from "@/features/auth/schemas/auth";
 import { login } from "@/features/auth/store/auth-slice";
@@ -17,13 +18,23 @@ type FormErrors = Partial<Record<keyof LoginValues, string>>;
 
 const initialValues: LoginValues = { email: "", password: "" };
 
+function readOauthErrorFromUrl(): string | null {
+  if (typeof window === "undefined") return null;
+
+  const errorCode = new URLSearchParams(window.location.search).get("error");
+  if (!errorCode) return null;
+
+  window.history.replaceState(null, "", window.location.pathname);
+  return describeOauthError(errorCode);
+}
+
 export function LoginForm() {
   const { login: loginContent } = authContent;
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [values, setValues] = useState<LoginValues>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(readOauthErrorFromUrl);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
 
   function handleChange(field: keyof LoginValues) {
