@@ -1,13 +1,23 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchLeads } from "@/features/leads/api/leads";
+import {
+  addLeadNote,
+  createLead,
+  fetchLeads,
+  updateLeadStage,
+  updateLeadTags,
+} from "@/features/leads/api/leads";
 import { LeadColumn } from "@/features/leads/components/lead-column";
+import { LeadCreateSheet } from "@/features/leads/components/lead-create-sheet";
 import { LeadDetailSheet } from "@/features/leads/components/lead-detail-sheet";
 import type { Lead } from "@/features/leads/schemas/lead";
-import { PIPELINE_STAGES, pipelineStageLabel, type PipelineStage } from "@/types/pipeline-stage";
+import { ApiError } from "@/lib/api-client";
+import { PIPELINE_STAGES, type PipelineStage } from "@/types/pipeline-stage";
 
 type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data: Lead[] };
 
@@ -16,6 +26,8 @@ export function LeadsBoard() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [dropTargetStage, setDropTargetStage] = useState<PipelineStage | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,21 +56,66 @@ export function LeadsBoard() {
     return grouped;
   }, [state]);
 
-  function updateLead(id: string, updater: (lead: Lead) => Lead) {
+  function putLead(updated: Lead) {
     setState((current) =>
       current.phase === "ready"
-        ? { ...current, data: current.data.map((lead) => (lead.id === id ? updater(lead) : lead)) }
+        ? {
+            ...current,
+            data: current.data.map((lead) => (lead.id === updated.id ? updated : lead)),
+          }
         : current,
     );
   }
 
-  function moveLeadToStage(id: string, stage: PipelineStage) {
-    const stageTags = new Set(Object.values(pipelineStageLabel));
-    updateLead(id, (lead) => ({
-      ...lead,
-      stage,
-      tags: [...lead.tags.filter((tag) => !stageTags.has(tag)), pipelineStageLabel[stage]],
-    }));
+  async function moveLeadToStage(id: string, stage: PipelineStage) {
+    setActionError(null);
+    try {
+      putLead(await updateLeadStage(id, stage));
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "স্ট্যাটাস পরিবর্তন করা যায়নি।");
+    }
+  }
+
+  async function handleAddTag(tag: string) {
+    if (!selectedLead || selectedLead.tags.includes(tag)) return;
+    setActionError(null);
+    try {
+      putLead(await updateLeadTags(selectedLead.id, [...selectedLead.tags, tag]));
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "ট্যাগ যোগ করা যায়নি।");
+    }
+  }
+
+  async function handleRemoveTag(tag: string) {
+    if (!selectedLead) return;
+    setActionError(null);
+    try {
+      putLead(
+        await updateLeadTags(
+          selectedLead.id,
+          selectedLead.tags.filter((existing) => existing !== tag),
+        ),
+      );
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "ট্যাগ মুছে ফেলা যায়নি।");
+    }
+  }
+
+  async function handleAddNote(text: string) {
+    if (!selectedLead) return;
+    setActionError(null);
+    try {
+      putLead(await addLeadNote(selectedLead.id, text));
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "নোট যোগ করা যায়নি।");
+    }
+  }
+
+  async function handleCreate(input: { name: string; phone: string; source: string }) {
+    const created = await createLead(input);
+    setState((current) =>
+      current.phase === "ready" ? { ...current, data: [created, ...current.data] } : current,
+    );
   }
 
   function finishDragging() {
@@ -88,6 +145,18 @@ export function LeadsBoard() {
 
   return (
     <>
+      <div className="flex items-center justify-between gap-3">
+        {actionError ? (
+          <p className="text-destructive font-bangla text-xs">{actionError}</p>
+        ) : (
+          <span />
+        )}
+        <Button size="sm" className="font-bangla shrink-0" onClick={() => setCreateOpen(true)}>
+          <Plus className="size-4" />
+          নতুন লিড
+        </Button>
+      </div>
+
       <div className="scrollbar-hidden flex max-w-full min-w-0 items-start gap-4 overflow-x-auto pb-3">
         {PIPELINE_STAGES.map((stage) => (
           <LeadColumn
@@ -122,31 +191,12 @@ export function LeadsBoard() {
         onChangeStage={(stage) => {
           if (selectedLead) moveLeadToStage(selectedLead.id, stage);
         }}
-        onAddTag={(tag) => {
-          if (selectedLead && !selectedLead.tags.includes(tag)) {
-            updateLead(selectedLead.id, (lead) => ({ ...lead, tags: [...lead.tags, tag] }));
-          }
-        }}
-        onRemoveTag={(tag) => {
-          if (selectedLead) {
-            updateLead(selectedLead.id, (lead) => ({
-              ...lead,
-              tags: lead.tags.filter((existing) => existing !== tag),
-            }));
-          }
-        }}
-        onAddNote={(text) => {
-          if (selectedLead) {
-            updateLead(selectedLead.id, (lead) => ({
-              ...lead,
-              notes: [
-                ...lead.notes,
-                { id: `note-${Date.now()}`, text, createdAt: new Date().toISOString() },
-              ],
-            }));
-          }
-        }}
+        onAddTag={handleAddTag}
+        onRemoveTag={handleRemoveTag}
+        onAddNote={handleAddNote}
       />
+
+      <LeadCreateSheet open={createOpen} onOpenChange={setCreateOpen} onCreate={handleCreate} />
     </>
   );
 }
