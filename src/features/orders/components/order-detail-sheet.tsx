@@ -31,7 +31,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { ChannelIcon } from "@/features/inbox/components/channel-icon";
+import { OrderChannelIcon } from "@/features/orders/components/order-channel-icon";
 import {
   ORDER_STATUSES,
   OrderStatusBadge,
@@ -92,7 +92,7 @@ function OrderDetailBody({
         <div>
           <SheetTitle className="flex items-center gap-2">
             {order.orderNumber}
-            <ChannelIcon channel={order.channel} branded className="size-4" />
+            <OrderChannelIcon channel={order.channel} branded className="size-4" />
             {order.isHighRisk && <AlertTriangle className="text-destructive size-4" />}
           </SheetTitle>
           <SheetDescription className="font-bangla">{order.customerName}</SheetDescription>

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { channelSchema } from "@/features/inbox/schemas/conversation";
 
 export const orderStatusSchema = z.enum([
   "pending",
@@ -31,10 +30,10 @@ export const orderSchema = z.object({
   customerName: z.string(),
   customerPhone: z.string(),
   address: z.string(),
-  channel: channelSchema,
+  channel: z.string(),
   status: orderStatusSchema,
   paymentMethod: paymentMethodSchema,
-  courier: z.string().optional(),
+  courier: z.string().nullable(),
   isHighRisk: z.boolean(),
   items: z.array(orderItemSchema),
   tags: z.array(z.string()),

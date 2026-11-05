@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { Order, PaymentMethod } from "@/features/orders/schemas/order";
+import { ApiError } from "@/lib/api-client";
 
 export type OrderFormItem = { productName: string; quantity: string; price: string };
 
@@ -79,10 +80,32 @@ function OrderFormBody({
   onCancel,
 }: {
   initialOrder: Order | null;
-  onSubmit: (values: OrderFormValues) => void;
+  onSubmit: (values: OrderFormValues) => Promise<void>;
   onCancel: () => void;
 }) {
   const [values, setValues] = useState<OrderFormValues>(() => valuesFromOrder(initialOrder));
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit() {
+    if (!isValid(values) || saving) return;
+    setError(null);
+    setSaving(true);
+    try {
+      await onSubmit(values);
+      onCancel();
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : initialOrder
+            ? "অর্ডার আপডেট করা যায়নি।"
+            : "অর্ডার তৈরি করা যায়নি।",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function updateItem(index: number, patch: Partial<OrderFormItem>) {
     setValues((current) => ({
@@ -235,17 +258,25 @@ function OrderFormBody({
             পণ্য যোগ করুন
           </Button>
         </section>
+
+        {error && <p className="text-destructive font-bangla text-xs">{error}</p>}
       </div>
 
       <SheetFooter className="flex-row border-t">
-        <Button variant="outline" className="font-bangla flex-1" onClick={onCancel}>
+        <Button
+          variant="outline"
+          className="font-bangla flex-1"
+          onClick={onCancel}
+          disabled={saving}
+        >
           বাতিল
         </Button>
         <Button
           className="font-bangla flex-1"
-          disabled={!isValid(values)}
-          onClick={() => onSubmit(values)}
+          disabled={!isValid(values) || saving}
+          onClick={handleSubmit}
         >
+          {saving ? <Loader2 className="size-4 animate-spin" /> : null}
           {initialOrder ? "আপডেট করুন" : "অর্ডার যোগ করুন"}
         </Button>
       </SheetFooter>
@@ -262,7 +293,7 @@ export function OrderFormSheet({
   order: Order | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: OrderFormValues) => void;
+  onSubmit: (values: OrderFormValues) => Promise<void>;
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

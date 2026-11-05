@@ -7,7 +7,15 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/features/dashboard/components/empty-state";
-import { fetchOrders } from "@/features/orders/api/orders";
+import {
+  addOrderNote,
+  createOrder,
+  deleteOrder,
+  fetchOrders,
+  updateOrder,
+  updateOrderStatus,
+  updateOrderTags,
+} from "@/features/orders/api/orders";
 import { OrderDetailSheet } from "@/features/orders/components/order-detail-sheet";
 import {
   type OrderFormValues,
@@ -18,17 +26,10 @@ import { ORDER_STATUSES, orderStatusLabel } from "@/features/orders/components/o
 import { OrderTableHeader } from "@/features/orders/components/order-table-header";
 import { OrdersSummary } from "@/features/orders/components/orders-summary";
 import type { Order, OrderStatus } from "@/features/orders/schemas/order";
+import { ApiError } from "@/lib/api-client";
 import { cn } from "cn";
 
 type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data: Order[] };
-
-function nextOrderNumber(orders: Order[]): string {
-  const max = orders.reduce((highest, order) => {
-    const numeric = Number(order.orderNumber.replace(/\D/g, ""));
-    return Number.isFinite(numeric) ? Math.max(highest, numeric) : highest;
-  }, 1000);
-  return `#${max + 1}`;
-}
 
 export function OrdersView() {
   const [state, setState] = useState<State>({ phase: "loading" });
@@ -37,6 +38,7 @@ export function OrdersView() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,12 +74,12 @@ export function OrdersView() {
   const selectedOrder = orders.find((order) => order.id === selectedId) ?? null;
   const editingOrder = orders.find((order) => order.id === editingOrderId) ?? null;
 
-  function updateOrder(id: string, updater: (order: Order) => Order) {
+  function putOrder(updated: Order) {
     setState((current) =>
       current.phase === "ready"
         ? {
             ...current,
-            data: current.data.map((order) => (order.id === id ? updater(order) : order)),
+            data: current.data.map((order) => (order.id === updated.id ? updated : order)),
           }
         : current,
     );
@@ -93,58 +95,102 @@ export function OrdersView() {
     setFormOpen(true);
   }
 
-  function submitForm(values: OrderFormValues) {
-    const items = values.items.map((item, index) => ({
-      id: `item-${index}`,
+  async function handleFormSubmit(values: OrderFormValues) {
+    const items = values.items.map((item) => ({
       productName: item.productName.trim(),
       quantity: Number(item.quantity),
       price: Number(item.price),
     }));
+    const courier = values.courier.trim() || null;
 
     if (editingOrderId) {
-      updateOrder(editingOrderId, (order) => ({
-        ...order,
+      const current = orders.find((order) => order.id === editingOrderId);
+      const updated = await updateOrder(editingOrderId, {
         customerName: values.customerName.trim(),
         customerPhone: values.customerPhone.trim(),
         address: values.address.trim(),
+        channel: current?.channel ?? "manual",
         paymentMethod: values.paymentMethod,
-        courier: values.courier.trim() || undefined,
+        courier,
         isHighRisk: values.isHighRisk,
         items,
-      }));
+      });
+      putOrder(updated);
     } else {
-      const newOrder: Order = {
-        id: `order-${Date.now()}`,
-        orderNumber: nextOrderNumber(orders),
+      const created = await createOrder({
         customerName: values.customerName.trim(),
         customerPhone: values.customerPhone.trim(),
         address: values.address.trim(),
-        channel: "messenger",
-        status: "pending",
         paymentMethod: values.paymentMethod,
-        courier: values.courier.trim() || undefined,
+        courier,
         isHighRisk: values.isHighRisk,
         items,
-        tags: [],
-        notes: [],
-        createdAt: new Date().toISOString(),
-      };
+      });
       setState((current) =>
-        current.phase === "ready" ? { ...current, data: [newOrder, ...current.data] } : current,
+        current.phase === "ready" ? { ...current, data: [created, ...current.data] } : current,
       );
     }
-
-    setFormOpen(false);
-    setEditingOrderId(null);
   }
 
-  function deleteOrder(id: string) {
-    setState((current) =>
-      current.phase === "ready"
-        ? { ...current, data: current.data.filter((order) => order.id !== id) }
-        : current,
-    );
-    setSelectedId(null);
+  async function handleChangeStatus(status: OrderStatus) {
+    if (!selectedOrder) return;
+    setActionError(null);
+    try {
+      putOrder(await updateOrderStatus(selectedOrder.id, status));
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "স্ট্যাটাস পরিবর্তন করা যায়নি।");
+    }
+  }
+
+  async function handleAddTag(tag: string) {
+    if (!selectedOrder || selectedOrder.tags.includes(tag)) return;
+    setActionError(null);
+    try {
+      putOrder(await updateOrderTags(selectedOrder.id, [...selectedOrder.tags, tag]));
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "ট্যাগ যোগ করা যায়নি।");
+    }
+  }
+
+  async function handleRemoveTag(tag: string) {
+    if (!selectedOrder) return;
+    setActionError(null);
+    try {
+      putOrder(
+        await updateOrderTags(
+          selectedOrder.id,
+          selectedOrder.tags.filter((existing) => existing !== tag),
+        ),
+      );
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "ট্যাগ মুছে ফেলা যায়নি।");
+    }
+  }
+
+  async function handleAddNote(text: string) {
+    if (!selectedOrder) return;
+    setActionError(null);
+    try {
+      putOrder(await addOrderNote(selectedOrder.id, text));
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "নোট যোগ করা যায়নি।");
+    }
+  }
+
+  async function handleDeleteOrder() {
+    if (!selectedOrder) return;
+    setActionError(null);
+    try {
+      await deleteOrder(selectedOrder.id);
+      setState((current) =>
+        current.phase === "ready"
+          ? { ...current, data: current.data.filter((order) => order.id !== selectedOrder.id) }
+          : current,
+      );
+      setSelectedId(null);
+    } catch (error) {
+      setActionError(error instanceof ApiError ? error.message : "অর্ডার মুছে ফেলা যায়নি।");
+    }
   }
 
   if (state.phase === "loading") {
@@ -173,6 +219,8 @@ export function OrdersView() {
   return (
     <div className="flex flex-col gap-4">
       <OrdersSummary orders={orders} />
+
+      {actionError && <p className="text-destructive font-bangla text-xs">{actionError}</p>}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
@@ -245,42 +293,17 @@ export function OrdersView() {
         onOpenChange={(open) => {
           if (!open) setSelectedId(null);
         }}
-        onChangeStatus={(status) => {
-          if (selectedOrder) updateOrder(selectedOrder.id, (order) => ({ ...order, status }));
-        }}
-        onAddTag={(tag) => {
-          if (selectedOrder && !selectedOrder.tags.includes(tag)) {
-            updateOrder(selectedOrder.id, (order) => ({ ...order, tags: [...order.tags, tag] }));
-          }
-        }}
-        onRemoveTag={(tag) => {
-          if (selectedOrder) {
-            updateOrder(selectedOrder.id, (order) => ({
-              ...order,
-              tags: order.tags.filter((existing) => existing !== tag),
-            }));
-          }
-        }}
-        onAddNote={(text) => {
-          if (selectedOrder) {
-            updateOrder(selectedOrder.id, (order) => ({
-              ...order,
-              notes: [
-                ...order.notes,
-                { id: `note-${Date.now()}`, text, createdAt: new Date().toISOString() },
-              ],
-            }));
-          }
-        }}
+        onChangeStatus={handleChangeStatus}
+        onAddTag={handleAddTag}
+        onRemoveTag={handleRemoveTag}
+        onAddNote={handleAddNote}
         onEdit={() => {
           if (selectedOrder) {
             setSelectedId(null);
             openEditForm(selectedOrder.id);
           }
         }}
-        onDelete={() => {
-          if (selectedOrder) deleteOrder(selectedOrder.id);
-        }}
+        onDelete={handleDeleteOrder}
       />
 
       <OrderFormSheet
@@ -290,7 +313,7 @@ export function OrdersView() {
           setFormOpen(open);
           if (!open) setEditingOrderId(null);
         }}
-        onSubmit={submitForm}
+        onSubmit={handleFormSubmit}
       />
     </div>
   );

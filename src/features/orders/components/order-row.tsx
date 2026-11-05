@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronRight } from "lucide-react";
-import { ChannelIcon } from "@/features/inbox/components/channel-icon";
+import { OrderChannelIcon } from "@/features/orders/components/order-channel-icon";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import type { Order } from "@/features/orders/schemas/order";
 import { cn } from "cn";
@@ -29,7 +29,7 @@ export function OrderRow({ order, onClick }: { order: Order; onClick: () => void
       className="hover:bg-muted/50 flex w-full flex-col gap-2 px-4 py-3 text-left transition-colors md:grid md:grid-cols-[1.3fr_1.3fr_0.8fr_1fr_1.3fr_0.7fr_auto] md:items-center md:gap-4"
     >
       <div className="flex min-w-0 items-center gap-2">
-        <ChannelIcon channel={order.channel} branded className="size-4 shrink-0" />
+        <OrderChannelIcon channel={order.channel} branded className="size-4 shrink-0" />
         <div className="min-w-0">
           <p className="font-bangla truncate text-sm font-semibold">{order.customerName}</p>
           <p className="text-muted-foreground truncate text-xs">{order.orderNumber}</p>
