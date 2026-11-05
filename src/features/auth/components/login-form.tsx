@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SuccessToast } from "@/components/shared/success-toast";
 import { authContent } from "@/features/auth/content";
 import { OauthButtons } from "@/features/auth/components/oauth-buttons";
 import { describeOauthError } from "@/features/auth/oauth-errors";
@@ -16,6 +17,7 @@ import { useValidatedForm } from "@/hooks/use-validated-form";
 import { useAppDispatch } from "@/store/hooks";
 
 const initialValues: LoginValues = { email: "", password: "" };
+const SUCCESS_REDIRECT_DELAY_MS = 1500;
 
 function readOauthErrorFromUrl(): string | null {
   if (typeof window === "undefined") return null;
@@ -37,6 +39,7 @@ export function LoginForm() {
   );
   const [formError, setFormError] = useState<string | null>(readOauthErrorFromUrl);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,7 +52,8 @@ export function LoginForm() {
 
     try {
       await dispatch(login(data)).unwrap();
-      router.push("/dashboard");
+      setShowSuccess(true);
+      setTimeout(() => router.push("/dashboard"), SUCCESS_REDIRECT_DELAY_MS);
     } catch (error) {
       setFormError(typeof error === "string" ? error : loginContent.submit);
       setStatus("idle");
@@ -58,6 +62,7 @@ export function LoginForm() {
 
   return (
     <div>
+      <SuccessToast message={loginContent.successToast} show={showSuccess} />
       <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
         {loginContent.eyebrow}
       </p>

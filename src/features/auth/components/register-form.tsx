@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SuccessToast } from "@/components/shared/success-toast";
 import { authContent } from "@/features/auth/content";
 import { OauthButtons } from "@/features/auth/components/oauth-buttons";
 import { PasswordInput } from "@/features/auth/components/password-input";
@@ -21,6 +22,7 @@ const initialValues: RegisterValues = {
   password: "",
   confirmPassword: "",
 };
+const SUCCESS_REDIRECT_DELAY_MS = 1500;
 
 export function RegisterForm() {
   const { register: registerContent } = authContent;
@@ -32,6 +34,7 @@ export function RegisterForm() {
   );
   const [formError, setFormError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,7 +54,8 @@ export function RegisterForm() {
           password: data.password,
         }),
       ).unwrap();
-      router.push("/dashboard");
+      setShowSuccess(true);
+      setTimeout(() => router.push("/dashboard"), SUCCESS_REDIRECT_DELAY_MS);
     } catch (error) {
       setFormError(typeof error === "string" ? error : registerContent.submit);
       setStatus("idle");
@@ -60,6 +64,7 @@ export function RegisterForm() {
 
   return (
     <div>
+      <SuccessToast message={registerContent.successToast} show={showSuccess} />
       <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
         {registerContent.eyebrow}
       </p>

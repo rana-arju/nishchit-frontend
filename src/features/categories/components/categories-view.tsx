@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderTree, Plus } from "lucide-react";
+import { FolderTree, Loader2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,16 +8,25 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/features/dashboard/components/empty-state";
-import { fetchCategories } from "@/features/categories/api/categories";
+import {
+  createCategory,
+  deleteCategory,
+  fetchCategories,
+  renameCategory,
+} from "@/features/categories/api/categories";
 import { CategoriesSummary } from "@/features/categories/components/categories-summary";
 import { CategoryCard } from "@/features/categories/components/category-card";
 import type { Category } from "@/features/categories/schemas/category";
+import { ApiError } from "@/lib/api-client";
 
 type State = { phase: "loading" } | { phase: "error" } | { phase: "ready"; data: Category[] };
 
 export function CategoriesView() {
   const [state, setState] = useState<State>({ phase: "loading" });
   const [name, setName] = useState("");
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addStatus, setAddStatus] = useState<"idle" | "submitting">("idle");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -38,42 +47,50 @@ export function CategoriesView() {
 
   const categories = state.phase === "ready" ? state.data : [];
 
-  function handleAdd(event: React.FormEvent<HTMLFormElement>) {
+  async function handleAdd(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) return;
 
-    const newCategory: Category = {
-      id: `category-${Date.now()}`,
-      name: trimmed,
-      productCount: 0,
-      createdAt: new Date().toISOString(),
-    };
-    setState((current) =>
-      current.phase === "ready" ? { ...current, data: [...current.data, newCategory] } : current,
-    );
-    setName("");
+    setAddError(null);
+    setAddStatus("submitting");
+    try {
+      const created = await createCategory(trimmed);
+      setState((current) =>
+        current.phase === "ready" ? { ...current, data: [...current.data, created] } : current,
+      );
+      setName("");
+    } catch (error) {
+      setAddError(error instanceof ApiError ? error.message : "ক্যাটাগরি যোগ করা যায়নি।");
+    } finally {
+      setAddStatus("idle");
+    }
   }
 
-  function renameCategory(id: string, newName: string) {
+  async function handleRename(id: string, newName: string): Promise<void> {
+    const updated = await renameCategory(id, newName);
     setState((current) =>
       current.phase === "ready"
         ? {
             ...current,
-            data: current.data.map((category) =>
-              category.id === id ? { ...category, name: newName } : category,
-            ),
+            data: current.data.map((category) => (category.id === id ? updated : category)),
           }
         : current,
     );
   }
 
-  function deleteCategory(id: string) {
-    setState((current) =>
-      current.phase === "ready"
-        ? { ...current, data: current.data.filter((category) => category.id !== id) }
-        : current,
-    );
+  async function handleDelete(id: string) {
+    setDeleteError(null);
+    try {
+      await deleteCategory(id);
+      setState((current) =>
+        current.phase === "ready"
+          ? { ...current, data: current.data.filter((category) => category.id !== id) }
+          : current,
+      );
+    } catch (error) {
+      setDeleteError(error instanceof ApiError ? error.message : "ক্যাটাগরি মুছে ফেলা যায়নি।");
+    }
   }
 
   if (state.phase === "error") {
@@ -90,22 +107,44 @@ export function CategoriesView() {
     <div className="flex flex-col gap-4">
       {state.phase === "ready" && <CategoriesSummary categories={categories} />}
 
+      {deleteError && (
+        <p className="font-bangla rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+          {deleteError}
+        </p>
+      )}
+
       <Card className="border-transparent shadow-sm ring-1">
         <CardHeader>
           <CardTitle className="font-bangla text-sm">নতুন ক্যাটাগরি যোগ করুন</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAdd} className="flex gap-3">
-            <Input
-              placeholder="যেমন: টি-শার্ট"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="font-bangla h-10"
-            />
-            <Button type="submit" className="font-bangla h-10 shrink-0">
-              <Plus className="size-4" />
-              যোগ করুন
-            </Button>
+          <form onSubmit={handleAdd} className="flex flex-col gap-2">
+            <div className="flex gap-3">
+              <Input
+                placeholder="যেমন: টি-শার্ট"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value);
+                  setAddError(null);
+                }}
+                aria-invalid={Boolean(addError)}
+                disabled={addStatus === "submitting"}
+                className="font-bangla h-10"
+              />
+              <Button
+                type="submit"
+                disabled={addStatus === "submitting"}
+                className="font-bangla h-10 shrink-0"
+              >
+                {addStatus === "submitting" ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Plus className="size-4" />
+                )}
+                যোগ করুন
+              </Button>
+            </div>
+            {addError && <p className="text-destructive font-bangla text-xs">{addError}</p>}
           </form>
         </CardContent>
       </Card>
@@ -129,7 +168,7 @@ export function CategoriesView() {
               <CategoryCard
                 key={category.id}
                 category={category}
-                onRename={(newName) => renameCategory(category.id, newName)}
+                onRename={(newName) => handleRename(category.id, newName)}
                 onDelete={() => setPendingDeleteId(category.id)}
               />
             ))}
@@ -146,7 +185,7 @@ export function CategoriesView() {
         description="আপনি কি নিশ্চিতভাবে এই ক্যাটাগরিটি মুছে ফেলতে চান?"
         confirmLabel="মুছে ফেলুন"
         onConfirm={() => {
-          if (pendingDeleteId) deleteCategory(pendingDeleteId);
+          if (pendingDeleteId) handleDelete(pendingDeleteId);
           setPendingDeleteId(null);
         }}
       />

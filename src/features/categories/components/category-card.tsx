@@ -1,10 +1,11 @@
 "use client";
 
-import { Check, FolderTree, Pencil, Trash2, X } from "lucide-react";
+import { Check, FolderTree, Loader2, Pencil, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { Category } from "@/features/categories/schemas/category";
+import { ApiError } from "@/lib/api-client";
 import { cn } from "cn";
 
 const TONES = [
@@ -27,15 +28,33 @@ export function CategoryCard({
   onDelete,
 }: {
   category: Category;
-  onRename: (name: string) => void;
+  onRename: (name: string) => Promise<void>;
   onDelete: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(category.name);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  function submitRename() {
+  async function submitRename() {
     const trimmed = draft.trim();
-    if (trimmed) onRename(trimmed);
+    if (!trimmed) return;
+
+    setError(null);
+    setSaving(true);
+    try {
+      await onRename(trimmed);
+      setEditing(false);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "নাম পরিবর্তন করা যায়নি।");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function cancelEdit() {
+    setDraft(category.name);
+    setError(null);
     setEditing(false);
   }
 
@@ -52,39 +71,44 @@ export function CategoryCard({
         </div>
 
         {editing ? (
-          <div className="flex min-w-0 flex-1 items-center gap-1.5">
-            <Input
-              autoFocus
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") submitRename();
-                if (event.key === "Escape") {
-                  setDraft(category.name);
-                  setEditing(false);
-                }
-              }}
-              className="font-bangla h-8"
-            />
-            <button
-              type="button"
-              onClick={submitRename}
-              aria-label="সংরক্ষণ করুন"
-              className="text-chart-4 hover:bg-muted rounded-md p-1.5"
-            >
-              <Check className="size-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setDraft(category.name);
-                setEditing(false);
-              }}
-              aria-label="বাতিল"
-              className="text-muted-foreground hover:bg-muted rounded-md p-1.5"
-            >
-              <X className="size-4" />
-            </button>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex items-center gap-1.5">
+              <Input
+                autoFocus
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") submitRename();
+                  if (event.key === "Escape") cancelEdit();
+                }}
+                disabled={saving}
+                aria-invalid={Boolean(error)}
+                className="font-bangla h-8"
+              />
+              <button
+                type="button"
+                onClick={submitRename}
+                disabled={saving}
+                aria-label="সংরক্ষণ করুন"
+                className="text-chart-4 hover:bg-muted rounded-md p-1.5 disabled:opacity-50"
+              >
+                {saving ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Check className="size-4" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={cancelEdit}
+                disabled={saving}
+                aria-label="বাতিল"
+                className="text-muted-foreground hover:bg-muted rounded-md p-1.5 disabled:opacity-50"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            {error && <p className="text-destructive font-bangla text-xs">{error}</p>}
           </div>
         ) : (
           <>

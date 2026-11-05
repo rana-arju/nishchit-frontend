@@ -4,6 +4,7 @@ import {
   fetchCurrentUser,
   loginUser,
   logoutUser,
+  refreshSession,
   registerUser,
   setShop,
   type LoginPayload,
@@ -58,8 +59,21 @@ export const fetchMe = createAsyncThunk<AuthUser, void, { rejectValue: string }>
   async (_, { rejectWithValue }) => {
     try {
       return await fetchCurrentUser();
-    } catch (error) {
-      return rejectWithValue(extractErrorMessage(error, "You are not logged in."));
+    } catch (firstError) {
+      // Access token (15 min) may have expired while the refresh token (30 days) is still
+      // valid — try a silent refresh-and-retry before giving up, so a long-idle tab doesn't
+      // bounce the user to /login just because the short-lived cookie expired.
+      try {
+        await refreshSession();
+        return await fetchCurrentUser();
+      } catch {
+        try {
+          await logoutUser();
+        } catch {
+          // best-effort cookie cleanup; ignore failures here
+        }
+        return rejectWithValue(extractErrorMessage(firstError, "You are not logged in."));
+      }
     }
   },
 );

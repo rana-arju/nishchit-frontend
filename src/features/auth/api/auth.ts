@@ -42,6 +42,10 @@ export async function logoutUser(): Promise<void> {
   await apiFetch("/api/v1/auth/logout", { method: "POST" });
 }
 
+export async function refreshSession(): Promise<void> {
+  await apiFetch("/api/v1/auth/refresh", { method: "POST" });
+}
+
 export async function setShop(shopName: string): Promise<AuthUser> {
   const response = await apiFetch<ApiEnvelope<unknown>>("/api/v1/auth/shop", {
     method: "POST",
