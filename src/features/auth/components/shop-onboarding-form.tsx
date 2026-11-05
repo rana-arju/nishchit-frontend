@@ -8,9 +8,8 @@ import { Input } from "@/components/ui/input";
 import { authContent } from "@/features/auth/content";
 import { createOnboardingSchema, type OnboardingValues } from "@/features/auth/schemas/auth";
 import { saveShop } from "@/features/auth/store/auth-slice";
+import { useValidatedForm } from "@/hooks/use-validated-form";
 import { useAppDispatch } from "@/store/hooks";
-
-type FormErrors = Partial<Record<keyof OnboardingValues, string>>;
 
 const initialValues: OnboardingValues = { shop: "" };
 
@@ -18,8 +17,10 @@ export function ShopOnboardingForm() {
   const { onboarding } = authContent;
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [values, setValues] = useState<OnboardingValues>(initialValues);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const { values, errors, handleChange, validateAll } = useValidatedForm(
+    createOnboardingSchema,
+    initialValues,
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
 
@@ -27,21 +28,13 @@ export function ShopOnboardingForm() {
     event.preventDefault();
     setFormError(null);
 
-    const result = createOnboardingSchema().safeParse(values);
-    if (!result.success) {
-      const fieldErrors: FormErrors = {};
-      for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as keyof OnboardingValues] = issue.message;
-      }
-      setErrors(fieldErrors);
-      return;
-    }
+    const data = validateAll();
+    if (!data) return;
 
-    setErrors({});
     setStatus("submitting");
 
     try {
-      await dispatch(saveShop(result.data.shop)).unwrap();
+      await dispatch(saveShop(data.shop)).unwrap();
       router.push("/dashboard");
     } catch (error) {
       setFormError(typeof error === "string" ? error : onboarding.submit);
@@ -78,7 +71,7 @@ export function ShopOnboardingForm() {
           <Input
             id="onboarding-shop"
             value={values.shop}
-            onChange={(event) => setValues({ shop: event.target.value })}
+            onChange={handleChange("shop")}
             placeholder={onboarding.shopPlaceholder}
             aria-invalid={Boolean(errors.shop)}
             className="mt-2 h-11"

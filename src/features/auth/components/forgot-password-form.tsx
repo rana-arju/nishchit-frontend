@@ -12,17 +12,11 @@ import {
   createForgotPasswordSchema,
   createOtpSchema,
   createResetPasswordSchema,
-  type ForgotPasswordValues,
-  type OtpValues,
-  type ResetPasswordValues,
 } from "@/features/auth/schemas/auth";
+import { useValidatedForm } from "@/hooks/use-validated-form";
 import { ApiError } from "@/lib/api-client";
 
 type Step = "email" | "otp" | "reset" | "done";
-
-type OtpErrors = Partial<Record<keyof OtpValues, string>>;
-type ResetErrors = Partial<Record<keyof ResetPasswordValues, string>>;
-type EmailErrors = Partial<Record<keyof ForgotPasswordValues, string>>;
 
 function extractErrorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback;
@@ -33,14 +27,14 @@ export function ForgotPasswordForm() {
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-  const [resetValues, setResetValues] = useState<ResetPasswordValues>({
+
+  const emailForm = useValidatedForm(createForgotPasswordSchema, { email: "" });
+  const otpForm = useValidatedForm(createOtpSchema, { otp: "" });
+  const resetForm = useValidatedForm(createResetPasswordSchema, {
     newPassword: "",
     confirmPassword: "",
   });
 
-  const [emailErrors, setEmailErrors] = useState<EmailErrors>({});
-  const [otpErrors, setOtpErrors] = useState<OtpErrors>({});
-  const [resetErrors, setResetErrors] = useState<ResetErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
@@ -49,20 +43,13 @@ export function ForgotPasswordForm() {
     event.preventDefault();
     setFormError(null);
 
-    const result = createForgotPasswordSchema().safeParse({ email });
-    if (!result.success) {
-      const fieldErrors: EmailErrors = {};
-      for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as keyof ForgotPasswordValues] = issue.message;
-      }
-      setEmailErrors(fieldErrors);
-      return;
-    }
+    const data = emailForm.validateAll();
+    if (!data) return;
 
-    setEmailErrors({});
     setStatus("submitting");
     try {
-      await forgotPassword(result.data.email);
+      await forgotPassword(data.email);
+      setEmail(data.email);
       setStep("otp");
     } catch (error) {
       setFormError(extractErrorMessage(error, content.submit));
@@ -75,21 +62,13 @@ export function ForgotPasswordForm() {
     event.preventDefault();
     setFormError(null);
 
-    const result = createOtpSchema().safeParse({ otp });
-    if (!result.success) {
-      const fieldErrors: OtpErrors = {};
-      for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as keyof OtpValues] = issue.message;
-      }
-      setOtpErrors(fieldErrors);
-      return;
-    }
+    const data = otpForm.validateAll();
+    if (!data) return;
 
-    setOtpErrors({});
     setStatus("submitting");
     try {
-      await verifyOtp(email, result.data.otp);
-      setOtp(result.data.otp);
+      await verifyOtp(email, data.otp);
+      setOtp(data.otp);
       setStep("reset");
     } catch (error) {
       setFormError(extractErrorMessage(error, content.otp.submit));
@@ -113,20 +92,12 @@ export function ForgotPasswordForm() {
     event.preventDefault();
     setFormError(null);
 
-    const result = createResetPasswordSchema().safeParse(resetValues);
-    if (!result.success) {
-      const fieldErrors: ResetErrors = {};
-      for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as keyof ResetPasswordValues] = issue.message;
-      }
-      setResetErrors(fieldErrors);
-      return;
-    }
+    const data = resetForm.validateAll();
+    if (!data) return;
 
-    setResetErrors({});
     setStatus("submitting");
     try {
-      await resetPassword(email, otp, result.data.newPassword);
+      await resetPassword(email, otp, data.newPassword);
       setStep("done");
     } catch (error) {
       setFormError(extractErrorMessage(error, content.reset.submit));
@@ -193,13 +164,17 @@ export function ForgotPasswordForm() {
               id="forgot-otp"
               inputMode="numeric"
               autoComplete="one-time-code"
-              value={otp}
-              onChange={(event) => setOtp(event.target.value.replace(/\D/g, "").slice(0, 6))}
+              value={otpForm.values.otp}
+              onChange={(event) =>
+                otpForm.setFieldValue("otp", event.target.value.replace(/\D/g, "").slice(0, 6))
+              }
               placeholder={content.otp.placeholder}
-              aria-invalid={Boolean(otpErrors.otp)}
+              aria-invalid={Boolean(otpForm.errors.otp)}
               className="mt-2 h-11 text-center tracking-[0.5em]"
             />
-            {otpErrors.otp && <p className="text-destructive mt-1.5 text-xs">{otpErrors.otp}</p>}
+            {otpForm.errors.otp && (
+              <p className="text-destructive mt-1.5 text-xs">{otpForm.errors.otp}</p>
+            )}
           </div>
 
           <Button
@@ -268,16 +243,14 @@ export function ForgotPasswordForm() {
             </label>
             <PasswordInput
               id="forgot-new-password"
-              value={resetValues.newPassword}
-              onChange={(event) =>
-                setResetValues((prev) => ({ ...prev, newPassword: event.target.value }))
-              }
+              value={resetForm.values.newPassword}
+              onChange={resetForm.handleChange("newPassword")}
               placeholder={content.reset.newPasswordPlaceholder}
-              aria-invalid={Boolean(resetErrors.newPassword)}
+              aria-invalid={Boolean(resetForm.errors.newPassword)}
               className="mt-2 h-11"
             />
-            {resetErrors.newPassword && (
-              <p className="text-destructive mt-1.5 text-xs">{resetErrors.newPassword}</p>
+            {resetForm.errors.newPassword && (
+              <p className="text-destructive mt-1.5 text-xs">{resetForm.errors.newPassword}</p>
             )}
           </div>
 
@@ -290,16 +263,14 @@ export function ForgotPasswordForm() {
             </label>
             <PasswordInput
               id="forgot-confirm-password"
-              value={resetValues.confirmPassword}
-              onChange={(event) =>
-                setResetValues((prev) => ({ ...prev, confirmPassword: event.target.value }))
-              }
+              value={resetForm.values.confirmPassword}
+              onChange={resetForm.handleChange("confirmPassword")}
               placeholder={content.reset.confirmPasswordPlaceholder}
-              aria-invalid={Boolean(resetErrors.confirmPassword)}
+              aria-invalid={Boolean(resetForm.errors.confirmPassword)}
               className="mt-2 h-11"
             />
-            {resetErrors.confirmPassword && (
-              <p className="text-destructive mt-1.5 text-xs">{resetErrors.confirmPassword}</p>
+            {resetForm.errors.confirmPassword && (
+              <p className="text-destructive mt-1.5 text-xs">{resetForm.errors.confirmPassword}</p>
             )}
           </div>
 
@@ -352,14 +323,14 @@ export function ForgotPasswordForm() {
           <Input
             id="forgot-email"
             type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            value={emailForm.values.email}
+            onChange={emailForm.handleChange("email")}
             placeholder={content.emailPlaceholder}
-            aria-invalid={Boolean(emailErrors.email)}
+            aria-invalid={Boolean(emailForm.errors.email)}
             className="mt-2 h-11"
           />
-          {emailErrors.email && (
-            <p className="text-destructive mt-1.5 text-xs">{emailErrors.email}</p>
+          {emailForm.errors.email && (
+            <p className="text-destructive mt-1.5 text-xs">{emailForm.errors.email}</p>
           )}
         </div>
 

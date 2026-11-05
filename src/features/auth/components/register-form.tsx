@@ -11,9 +11,8 @@ import { OauthButtons } from "@/features/auth/components/oauth-buttons";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import { createRegisterSchema, type RegisterValues } from "@/features/auth/schemas/auth";
 import { register } from "@/features/auth/store/auth-slice";
+import { useValidatedForm } from "@/hooks/use-validated-form";
 import { useAppDispatch } from "@/store/hooks";
-
-type FormErrors = Partial<Record<keyof RegisterValues, string>>;
 
 const initialValues: RegisterValues = {
   name: "",
@@ -27,41 +26,29 @@ export function RegisterForm() {
   const { register: registerContent } = authContent;
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [values, setValues] = useState<RegisterValues>(initialValues);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const { values, errors, handleChange, validateAll } = useValidatedForm(
+    createRegisterSchema,
+    initialValues,
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
-
-  function handleChange(field: keyof RegisterValues) {
-    return (event: React.ChangeEvent<HTMLInputElement>) => {
-      setValues((prev) => ({ ...prev, [field]: event.target.value }));
-    };
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
 
-    const result = createRegisterSchema().safeParse(values);
-    if (!result.success) {
-      const fieldErrors: FormErrors = {};
-      for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as keyof RegisterValues] = issue.message;
-      }
-      setErrors(fieldErrors);
-      return;
-    }
+    const data = validateAll();
+    if (!data) return;
 
-    setErrors({});
     setStatus("submitting");
 
     try {
       await dispatch(
         register({
-          name: result.data.name,
-          shopName: result.data.shop,
-          email: result.data.email,
-          password: result.data.password,
+          name: data.name,
+          shopName: data.shop,
+          email: data.email,
+          password: data.password,
         }),
       ).unwrap();
       router.push("/dashboard");

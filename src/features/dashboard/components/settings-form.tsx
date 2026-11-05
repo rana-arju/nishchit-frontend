@@ -11,19 +11,19 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { changePassword } from "@/features/auth/api/auth";
 import { authContent } from "@/features/auth/content";
-import {
-  createChangePasswordSchema,
-  type ChangePasswordValues,
-} from "@/features/auth/schemas/auth";
+import { createChangePasswordSchema } from "@/features/auth/schemas/auth";
+import { useValidatedForm } from "@/hooks/use-validated-form";
 import { ApiError } from "@/lib/api-client";
 
-const shopSchema = z.object({
-  shop: z.string().trim().min(1, "Shop or page name is required"),
-});
+function createShopSchema() {
+  return z.object({
+    shop: z.string().trim().min(1, "Shop or page name is required"),
+  });
+}
 
-type PasswordErrors = Partial<Record<keyof ChangePasswordValues, string>>;
+const initialShopValues = { shop: "" };
 
-const initialPasswordValues: ChangePasswordValues = {
+const initialPasswordValues = {
   currentPassword: "",
   newPassword: "",
   confirmPassword: "",
@@ -44,17 +44,15 @@ function passwordStrength(password: string): { label: string; className: string;
 }
 
 export function SettingsForm() {
-  const [shop, setShop] = useState("");
+  const shopForm = useValidatedForm(createShopSchema, initialShopValues);
   const [shopDescription, setShopDescription] = useState("");
-  const [shopError, setShopError] = useState<string>();
   const [shopSaved, setShopSaved] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  const [password, setPassword] = useState<ChangePasswordValues>(initialPasswordValues);
+  const passwordForm = useValidatedForm(createChangePasswordSchema, initialPasswordValues);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordErrors, setPasswordErrors] = useState<PasswordErrors>({});
   const [passwordFormError, setPasswordFormError] = useState<string | null>(null);
   const [passwordSaved, setPasswordSaved] = useState(false);
   const [passwordStatus, setPasswordStatus] = useState<"idle" | "submitting">("idle");
@@ -78,14 +76,8 @@ export function SettingsForm() {
 
   function handleShopSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = shopSchema.safeParse({ shop });
-    if (!result.success) {
-      setShopError(result.error.issues[0]?.message);
-      setShopSaved(false);
-      return;
-    }
-    setShopError(undefined);
-    setShopSaved(true);
+    const data = shopForm.validateAll();
+    setShopSaved(Boolean(data));
   }
 
   async function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -93,22 +85,14 @@ export function SettingsForm() {
     setPasswordFormError(null);
     setPasswordSaved(false);
 
-    const result = createChangePasswordSchema().safeParse(password);
-    if (!result.success) {
-      const fieldErrors: PasswordErrors = {};
-      for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as keyof ChangePasswordValues] = issue.message;
-      }
-      setPasswordErrors(fieldErrors);
-      return;
-    }
+    const data = passwordForm.validateAll();
+    if (!data) return;
 
-    setPasswordErrors({});
     setPasswordStatus("submitting");
     try {
-      await changePassword(result.data.currentPassword, result.data.newPassword);
+      await changePassword(data.currentPassword, data.newPassword);
       setPasswordSaved(true);
-      setPassword(initialPasswordValues);
+      passwordForm.reset();
     } catch (error) {
       setPasswordFormError(
         error instanceof ApiError ? error.message : authContent.changePassword.submit,
@@ -118,7 +102,7 @@ export function SettingsForm() {
     }
   }
 
-  const strength = passwordStrength(password.newPassword);
+  const strength = passwordStrength(passwordForm.values.newPassword);
 
   return (
     <div className="flex max-w-xl flex-col gap-6">
@@ -163,16 +147,18 @@ export function SettingsForm() {
               </label>
               <Input
                 id="settings-shop"
-                value={shop}
+                value={shopForm.values.shop}
                 onChange={(event) => {
-                  setShop(event.target.value);
+                  shopForm.handleChange("shop")(event);
                   setShopSaved(false);
                 }}
                 placeholder="Your Facebook page name"
-                aria-invalid={Boolean(shopError)}
+                aria-invalid={Boolean(shopForm.errors.shop)}
                 className="mt-2 h-10"
               />
-              {shopError && <p className="text-destructive mt-1.5 text-xs">{shopError}</p>}
+              {shopForm.errors.shop && (
+                <p className="text-destructive mt-1.5 text-xs">{shopForm.errors.shop}</p>
+              )}
             </div>
 
             <div>
@@ -222,11 +208,9 @@ export function SettingsForm() {
                 <Input
                   id="settings-current-password"
                   type={showCurrentPassword ? "text" : "password"}
-                  value={password.currentPassword}
-                  onChange={(event) =>
-                    setPassword((prev) => ({ ...prev, currentPassword: event.target.value }))
-                  }
-                  aria-invalid={Boolean(passwordErrors.currentPassword)}
+                  value={passwordForm.values.currentPassword}
+                  onChange={passwordForm.handleChange("currentPassword")}
+                  aria-invalid={Boolean(passwordForm.errors.currentPassword)}
                   className="h-10 pr-9"
                 />
                 <button
@@ -238,8 +222,10 @@ export function SettingsForm() {
                   {showCurrentPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
-              {passwordErrors.currentPassword && (
-                <p className="text-destructive mt-1.5 text-xs">{passwordErrors.currentPassword}</p>
+              {passwordForm.errors.currentPassword && (
+                <p className="text-destructive mt-1.5 text-xs">
+                  {passwordForm.errors.currentPassword}
+                </p>
               )}
             </div>
             <Separator />
@@ -251,11 +237,9 @@ export function SettingsForm() {
                 <Input
                   id="settings-password"
                   type={showPassword ? "text" : "password"}
-                  value={password.newPassword}
-                  onChange={(event) =>
-                    setPassword((prev) => ({ ...prev, newPassword: event.target.value }))
-                  }
-                  aria-invalid={Boolean(passwordErrors.newPassword)}
+                  value={passwordForm.values.newPassword}
+                  onChange={passwordForm.handleChange("newPassword")}
+                  aria-invalid={Boolean(passwordForm.errors.newPassword)}
                   className="h-10 pr-9"
                 />
                 <button
@@ -267,7 +251,7 @@ export function SettingsForm() {
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
-              {password.newPassword && (
+              {passwordForm.values.newPassword && (
                 <div className="mt-1.5 flex items-center gap-2">
                   <div className="bg-muted h-1 flex-1 overflow-hidden rounded-full">
                     <div className={`h-full rounded-full transition-all ${strength.className}`} />
@@ -277,8 +261,8 @@ export function SettingsForm() {
                   </span>
                 </div>
               )}
-              {passwordErrors.newPassword && (
-                <p className="text-destructive mt-1.5 text-xs">{passwordErrors.newPassword}</p>
+              {passwordForm.errors.newPassword && (
+                <p className="text-destructive mt-1.5 text-xs">{passwordForm.errors.newPassword}</p>
               )}
             </div>
             <Separator />
@@ -290,11 +274,9 @@ export function SettingsForm() {
                 <Input
                   id="settings-confirm-password"
                   type={showConfirmPassword ? "text" : "password"}
-                  value={password.confirmPassword}
-                  onChange={(event) =>
-                    setPassword((prev) => ({ ...prev, confirmPassword: event.target.value }))
-                  }
-                  aria-invalid={Boolean(passwordErrors.confirmPassword)}
+                  value={passwordForm.values.confirmPassword}
+                  onChange={passwordForm.handleChange("confirmPassword")}
+                  aria-invalid={Boolean(passwordForm.errors.confirmPassword)}
                   className="h-10 pr-9"
                 />
                 <button
@@ -306,8 +288,10 @@ export function SettingsForm() {
                   {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
-              {passwordErrors.confirmPassword && (
-                <p className="text-destructive mt-1.5 text-xs">{passwordErrors.confirmPassword}</p>
+              {passwordForm.errors.confirmPassword && (
+                <p className="text-destructive mt-1.5 text-xs">
+                  {passwordForm.errors.confirmPassword}
+                </p>
               )}
             </div>
             <Button

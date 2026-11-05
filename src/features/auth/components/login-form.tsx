@@ -12,9 +12,8 @@ import { describeOauthError } from "@/features/auth/oauth-errors";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import { createLoginSchema, type LoginValues } from "@/features/auth/schemas/auth";
 import { login } from "@/features/auth/store/auth-slice";
+import { useValidatedForm } from "@/hooks/use-validated-form";
 import { useAppDispatch } from "@/store/hooks";
-
-type FormErrors = Partial<Record<keyof LoginValues, string>>;
 
 const initialValues: LoginValues = { email: "", password: "" };
 
@@ -32,36 +31,24 @@ export function LoginForm() {
   const { login: loginContent } = authContent;
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [values, setValues] = useState<LoginValues>(initialValues);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const { values, errors, handleChange, validateAll } = useValidatedForm(
+    createLoginSchema,
+    initialValues,
+  );
   const [formError, setFormError] = useState<string | null>(readOauthErrorFromUrl);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
-
-  function handleChange(field: keyof LoginValues) {
-    return (event: React.ChangeEvent<HTMLInputElement>) => {
-      setValues((prev) => ({ ...prev, [field]: event.target.value }));
-    };
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
 
-    const result = createLoginSchema().safeParse(values);
-    if (!result.success) {
-      const fieldErrors: FormErrors = {};
-      for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as keyof LoginValues] = issue.message;
-      }
-      setErrors(fieldErrors);
-      return;
-    }
+    const data = validateAll();
+    if (!data) return;
 
-    setErrors({});
     setStatus("submitting");
 
     try {
-      await dispatch(login(result.data)).unwrap();
+      await dispatch(login(data)).unwrap();
       router.push("/dashboard");
     } catch (error) {
       setFormError(typeof error === "string" ? error : loginContent.submit);
