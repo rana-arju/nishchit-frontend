@@ -2,6 +2,7 @@
 
 import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +11,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { logout, selectCurrentUser } from "@/features/auth/store/auth-slice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 export function NavUser() {
+  const user = useAppSelector(selectCurrentUser);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  async function handleLogout() {
+    await dispatch(logout());
+    router.push("/login");
+  }
+
+  const initial = user?.name.trim().charAt(0).toUpperCase() || "N";
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -23,11 +37,13 @@ export function NavUser() {
                 className="data-[popup-open]:bg-sidebar-accent data-[popup-open]:text-sidebar-accent-foreground"
               >
                 <span className="bg-gradient-brand grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold text-white">
-                  N
+                  {initial}
                 </span>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Nishchit Seller</span>
-                  <span className="text-muted-foreground truncate text-xs">Facebook store</span>
+                  <span className="truncate font-medium">{user?.name ?? "Nishchit Seller"}</span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    {user?.shop?.name ?? "Facebook store"}
+                  </span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
@@ -39,7 +55,7 @@ export function NavUser() {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

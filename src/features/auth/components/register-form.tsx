@@ -2,6 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,8 @@ import { authContent } from "@/features/auth/content";
 import { OauthButtons } from "@/features/auth/components/oauth-buttons";
 import { PasswordInput } from "@/features/auth/components/password-input";
 import { createRegisterSchema, type RegisterValues } from "@/features/auth/schemas/auth";
+import { register } from "@/features/auth/store/auth-slice";
+import { useAppDispatch } from "@/store/hooks";
 
 type FormErrors = Partial<Record<keyof RegisterValues, string>>;
 
@@ -21,9 +24,12 @@ const initialValues: RegisterValues = {
 };
 
 export function RegisterForm() {
-  const { register } = authContent;
+  const { register: registerContent } = authContent;
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const [values, setValues] = useState<RegisterValues>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting">("idle");
 
   function handleChange(field: keyof RegisterValues) {
@@ -32,8 +38,9 @@ export function RegisterForm() {
     };
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setFormError(null);
 
     const result = createRegisterSchema().safeParse(values);
     if (!result.success) {
@@ -47,46 +54,67 @@ export function RegisterForm() {
 
     setErrors({});
     setStatus("submitting");
+
+    try {
+      await dispatch(
+        register({
+          name: result.data.name,
+          shopName: result.data.shop,
+          email: result.data.email,
+          password: result.data.password,
+        }),
+      ).unwrap();
+      router.push("/dashboard");
+    } catch (error) {
+      setFormError(typeof error === "string" ? error : registerContent.submit);
+      setStatus("idle");
+    }
   }
 
   return (
     <div>
       <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
-        {register.eyebrow}
+        {registerContent.eyebrow}
       </p>
       <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">
-        {register.title}
+        {registerContent.title}
       </h1>
       <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
-        {register.description}
+        {registerContent.description}
       </p>
 
       <div className="mt-6">
-        <OauthButtons labels={register.oauth} />
+        <OauthButtons labels={registerContent.oauth} />
       </div>
 
       <div className="my-6 flex items-center gap-3">
         <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
         <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
-          {register.dividerText}
+          {registerContent.dividerText}
         </span>
         <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        {formError && (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+            {formError}
+          </p>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label
               htmlFor="register-name"
               className="text-sm font-medium text-slate-700 dark:text-slate-200"
             >
-              {register.nameLabel}
+              {registerContent.nameLabel}
             </label>
             <Input
               id="register-name"
               value={values.name}
               onChange={handleChange("name")}
-              placeholder={register.namePlaceholder}
+              placeholder={registerContent.namePlaceholder}
               aria-invalid={Boolean(errors.name)}
               className="mt-2 h-11"
             />
@@ -98,13 +126,13 @@ export function RegisterForm() {
               htmlFor="register-shop"
               className="text-sm font-medium text-slate-700 dark:text-slate-200"
             >
-              {register.shopLabel}
+              {registerContent.shopLabel}
             </label>
             <Input
               id="register-shop"
               value={values.shop}
               onChange={handleChange("shop")}
-              placeholder={register.shopPlaceholder}
+              placeholder={registerContent.shopPlaceholder}
               aria-invalid={Boolean(errors.shop)}
               className="mt-2 h-11"
             />
@@ -117,14 +145,14 @@ export function RegisterForm() {
             htmlFor="register-email"
             className="text-sm font-medium text-slate-700 dark:text-slate-200"
           >
-            {register.emailLabel}
+            {registerContent.emailLabel}
           </label>
           <Input
             id="register-email"
             type="email"
             value={values.email}
             onChange={handleChange("email")}
-            placeholder={register.emailPlaceholder}
+            placeholder={registerContent.emailPlaceholder}
             aria-invalid={Boolean(errors.email)}
             className="mt-2 h-11"
           />
@@ -137,13 +165,13 @@ export function RegisterForm() {
               htmlFor="register-password"
               className="text-sm font-medium text-slate-700 dark:text-slate-200"
             >
-              {register.passwordLabel}
+              {registerContent.passwordLabel}
             </label>
             <PasswordInput
               id="register-password"
               value={values.password}
               onChange={handleChange("password")}
-              placeholder={register.passwordPlaceholder}
+              placeholder={registerContent.passwordPlaceholder}
               aria-invalid={Boolean(errors.password)}
               className="mt-2 h-11"
             />
@@ -157,13 +185,13 @@ export function RegisterForm() {
               htmlFor="register-confirm-password"
               className="text-sm font-medium text-slate-700 dark:text-slate-200"
             >
-              {register.confirmPasswordLabel}
+              {registerContent.confirmPasswordLabel}
             </label>
             <PasswordInput
               id="register-confirm-password"
               value={values.confirmPassword}
               onChange={handleChange("confirmPassword")}
-              placeholder={register.confirmPasswordPlaceholder}
+              placeholder={registerContent.confirmPasswordPlaceholder}
               aria-invalid={Boolean(errors.confirmPassword)}
               className="mt-2 h-11"
             />
@@ -182,21 +210,21 @@ export function RegisterForm() {
           {status === "submitting" ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              {register.submitting}
+              {registerContent.submitting}
             </>
           ) : (
-            register.submit
+            registerContent.submit
           )}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
-        {register.footerPrompt}{" "}
+        {registerContent.footerPrompt}{" "}
         <Link
-          href={register.footerLinkHref}
+          href={registerContent.footerLinkHref}
           className="font-semibold text-violet-700 hover:underline dark:text-violet-300"
         >
-          {register.footerLinkLabel}
+          {registerContent.footerLinkLabel}
         </Link>
       </p>
     </div>
