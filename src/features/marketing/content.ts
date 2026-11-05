@@ -4,9 +4,9 @@ export const marketingContent = {
     primaryLabel: "প্রধান নেভিগেশন",
     footerLabel: "ফুটার নেভিগেশন",
     links: [
-      { label: "কীভাবে কাজ করে", href: "/#how-it-works" },
-      { label: "ফিচার", href: "/#features" },
-      { label: "প্রশ্নোত্তর", href: "/#faq" },
+      { label: "কীভাবে কাজ করে", href: "/how-it-works" },
+      { label: "ফিচার", href: "/features" },
+      { label: "প্রশ্নোত্তর", href: "/faq" },
       { label: "আমাদের সম্পর্কে", href: "/about" },
       { label: "যোগাযোগ", href: "/contact" },
     ],
@@ -265,7 +265,7 @@ export const marketingContent = {
       {
         title: "সাধারণ প্রশ্ন",
         description: "অনেক উত্তর হয়তো ইতিমধ্যে আমাদের প্রশ্নোত্তর অংশে আছে।",
-        href: "/#faq",
+        href: "/faq",
       },
     ],
     form: {

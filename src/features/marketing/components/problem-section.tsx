@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { marketingContent } from "@/features/marketing/content";
+import { AnchorLink } from "@/features/marketing/components/anchor-link";
 import { Reveal } from "./reveal";
 
 const problemIcons = [ClipboardPenLine, RotateCcw, TimerReset] as const;
@@ -92,7 +93,7 @@ export function ProblemSection() {
                     </div>
                   </div>
 
-                  <a
+                  <AnchorLink
                     href="#features"
                     className={cn(
                       "flex items-center gap-2 border-t px-6 py-4 text-sm font-semibold transition-colors sm:px-7",
@@ -107,7 +108,7 @@ export function ProblemSection() {
                       className="ml-auto size-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1"
                       aria-hidden="true"
                     />
-                  </a>
+                  </AnchorLink>
                 </article>
               </Reveal>
             );

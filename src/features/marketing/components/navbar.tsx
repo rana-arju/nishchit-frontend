@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { marketingContent } from "@/features/marketing/content";
+import { AnchorLink } from "@/features/marketing/components/anchor-link";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -22,13 +23,13 @@ export function Navbar() {
         </Link>
         <div className="mx-auto hidden items-center gap-7 md:flex">
           {navigation.links.map((link) => (
-            <Link
+            <AnchorLink
               key={link.href}
               href={link.href}
               className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded-sm text-sm transition-colors outline-none focus-visible:ring-2"
             >
               {link.label}
-            </Link>
+            </AnchorLink>
           ))}
         </div>
         <div className="ml-auto flex items-center gap-1 sm:gap-2 md:ml-0">

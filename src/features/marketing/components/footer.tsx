@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { marketingContent } from "@/features/marketing/content";
+import { AnchorLink } from "@/features/marketing/components/anchor-link";
 
 export function Footer() {
   const { brand, navigation, footer } = marketingContent;
@@ -27,13 +28,13 @@ export function Footer() {
             </h3>
             <nav className="mt-4 flex flex-col gap-3" aria-label={navigation.footerLabel}>
               {navigation.links.map((link) => (
-                <Link
+                <AnchorLink
                   key={link.href}
                   href={link.href}
                   className="text-muted-foreground hover:text-foreground focus-visible:ring-ring w-fit rounded-sm text-sm transition-colors outline-none focus-visible:ring-2"
                 >
                   {link.label}
-                </Link>
+                </AnchorLink>
               ))}
             </nav>
           </div>

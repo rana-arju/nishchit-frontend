@@ -2,6 +2,7 @@ import { ArrowRight, Check, Play } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { marketingContent } from "@/features/marketing/content";
+import { AnchorLink } from "@/features/marketing/components/anchor-link";
 import { cn } from "@/lib/utils";
 import { HeroVisual } from "./hero-visual";
 import { Reveal } from "./reveal";
@@ -64,7 +65,7 @@ export function HeroSection() {
               />
             </Link>
 
-            <Link
+            <AnchorLink
               href="#how-it-works"
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
@@ -75,7 +76,7 @@ export function HeroSection() {
                 <Play className="size-3 translate-x-0.5 fill-current" aria-hidden="true" />
               </div>
               <span>{hero.secondaryAction}</span>
-            </Link>
+            </AnchorLink>
           </div>
 
           {/* Proof Points */}

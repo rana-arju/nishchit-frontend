@@ -1,6 +1,6 @@
 import { ArrowRight, MessageCircle, Sparkles, Zap } from "lucide-react";
-import Link from "next/link";
 import { marketingContent } from "@/features/marketing/content";
+import { AnchorLink } from "@/features/marketing/components/anchor-link";
 import { Reveal } from "@/features/marketing/components/reveal";
 import { ContactForm } from "./contact-form";
 
@@ -36,14 +36,14 @@ export function ContactSection() {
                 "group flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-50/60 p-5 transition duration-300 dark:border-slate-800 dark:bg-slate-900/60";
 
               return "href" in item && item.href ? (
-                <Link
+                <AnchorLink
                   key={item.title}
                   href={item.href}
                   className={`${className} hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100/70 dark:hover:border-violet-500/40`}
                 >
                   {content}
                   <ArrowRight className="ml-auto size-4 shrink-0 self-center text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-violet-500 dark:text-slate-600" />
-                </Link>
+                </AnchorLink>
               ) : (
                 <div key={item.title} className={className}>
                   {content}
