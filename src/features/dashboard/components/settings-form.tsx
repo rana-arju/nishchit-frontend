@@ -9,20 +9,25 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { changePassword } from "@/features/auth/api/auth";
+import { authContent } from "@/features/auth/content";
+import {
+  createChangePasswordSchema,
+  type ChangePasswordValues,
+} from "@/features/auth/schemas/auth";
+import { ApiError } from "@/lib/api-client";
 
 const shopSchema = z.object({
   shop: z.string().trim().min(1, "Shop or page name is required"),
 });
 
-const passwordSchema = z
-  .object({
-    password: z.string().min(6, "Use at least 6 characters"),
-    confirmPassword: z.string().min(6, "Use at least 6 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+type PasswordErrors = Partial<Record<keyof ChangePasswordValues, string>>;
+
+const initialPasswordValues: ChangePasswordValues = {
+  currentPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+};
 
 function passwordStrength(password: string): { label: string; className: string; score: number } {
   if (!password) return { label: "", className: "", score: 0 };
@@ -45,13 +50,14 @@ export function SettingsForm() {
   const [shopSaved, setShopSaved] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  const [password, setPassword] = useState({ password: "", confirmPassword: "" });
+  const [password, setPassword] = useState<ChangePasswordValues>(initialPasswordValues);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordErrors, setPasswordErrors] = useState<
-    Partial<Record<"password" | "confirmPassword", string>>
-  >({});
+  const [passwordErrors, setPasswordErrors] = useState<PasswordErrors>({});
+  const [passwordFormError, setPasswordFormError] = useState<string | null>(null);
   const [passwordSaved, setPasswordSaved] = useState(false);
+  const [passwordStatus, setPasswordStatus] = useState<"idle" | "submitting">("idle");
 
   const [notifications, setNotifications] = useState({
     orderAlerts: true,
@@ -82,24 +88,37 @@ export function SettingsForm() {
     setShopSaved(true);
   }
 
-  function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = passwordSchema.safeParse(password);
+    setPasswordFormError(null);
+    setPasswordSaved(false);
+
+    const result = createChangePasswordSchema().safeParse(password);
     if (!result.success) {
-      const fieldErrors: typeof passwordErrors = {};
+      const fieldErrors: PasswordErrors = {};
       for (const issue of result.error.issues) {
-        fieldErrors[issue.path[0] as "password" | "confirmPassword"] = issue.message;
+        fieldErrors[issue.path[0] as keyof ChangePasswordValues] = issue.message;
       }
       setPasswordErrors(fieldErrors);
-      setPasswordSaved(false);
       return;
     }
+
     setPasswordErrors({});
-    setPasswordSaved(true);
-    setPassword({ password: "", confirmPassword: "" });
+    setPasswordStatus("submitting");
+    try {
+      await changePassword(result.data.currentPassword, result.data.newPassword);
+      setPasswordSaved(true);
+      setPassword(initialPasswordValues);
+    } catch (error) {
+      setPasswordFormError(
+        error instanceof ApiError ? error.message : authContent.changePassword.submit,
+      );
+    } finally {
+      setPasswordStatus("idle");
+    }
   }
 
-  const strength = passwordStrength(password.password);
+  const strength = passwordStrength(password.newPassword);
 
   return (
     <div className="flex max-w-xl flex-col gap-6">
@@ -189,19 +208,54 @@ export function SettingsForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handlePasswordSubmit} noValidate className="flex flex-col gap-3">
+            {passwordFormError && (
+              <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+                {passwordFormError}
+              </p>
+            )}
+
+            <div>
+              <label htmlFor="settings-current-password" className="text-sm font-medium">
+                {authContent.changePassword.currentPasswordLabel}
+              </label>
+              <div className="relative mt-2">
+                <Input
+                  id="settings-current-password"
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={password.currentPassword}
+                  onChange={(event) =>
+                    setPassword((prev) => ({ ...prev, currentPassword: event.target.value }))
+                  }
+                  aria-invalid={Boolean(passwordErrors.currentPassword)}
+                  className="h-10 pr-9"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword((prev) => !prev)}
+                  aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2"
+                >
+                  {showCurrentPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+              {passwordErrors.currentPassword && (
+                <p className="text-destructive mt-1.5 text-xs">{passwordErrors.currentPassword}</p>
+              )}
+            </div>
+            <Separator />
             <div>
               <label htmlFor="settings-password" className="text-sm font-medium">
-                New password
+                {authContent.changePassword.newPasswordLabel}
               </label>
               <div className="relative mt-2">
                 <Input
                   id="settings-password"
                   type={showPassword ? "text" : "password"}
-                  value={password.password}
+                  value={password.newPassword}
                   onChange={(event) =>
-                    setPassword((prev) => ({ ...prev, password: event.target.value }))
+                    setPassword((prev) => ({ ...prev, newPassword: event.target.value }))
                   }
-                  aria-invalid={Boolean(passwordErrors.password)}
+                  aria-invalid={Boolean(passwordErrors.newPassword)}
                   className="h-10 pr-9"
                 />
                 <button
@@ -213,7 +267,7 @@ export function SettingsForm() {
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
-              {password.password && (
+              {password.newPassword && (
                 <div className="mt-1.5 flex items-center gap-2">
                   <div className="bg-muted h-1 flex-1 overflow-hidden rounded-full">
                     <div className={`h-full rounded-full transition-all ${strength.className}`} />
@@ -223,14 +277,14 @@ export function SettingsForm() {
                   </span>
                 </div>
               )}
-              {passwordErrors.password && (
-                <p className="text-destructive mt-1.5 text-xs">{passwordErrors.password}</p>
+              {passwordErrors.newPassword && (
+                <p className="text-destructive mt-1.5 text-xs">{passwordErrors.newPassword}</p>
               )}
             </div>
             <Separator />
             <div>
               <label htmlFor="settings-confirm-password" className="text-sm font-medium">
-                Confirm password
+                {authContent.changePassword.confirmPasswordLabel}
               </label>
               <div className="relative mt-2">
                 <Input
@@ -256,12 +310,19 @@ export function SettingsForm() {
                 <p className="text-destructive mt-1.5 text-xs">{passwordErrors.confirmPassword}</p>
               )}
             </div>
-            <Button type="submit" size="sm" className="w-fit">
-              Update password
+            <Button
+              type="submit"
+              size="sm"
+              className="w-fit"
+              disabled={passwordStatus === "submitting"}
+            >
+              {passwordStatus === "submitting"
+                ? authContent.changePassword.submitting
+                : authContent.changePassword.submit}
             </Button>
             {passwordSaved && (
               <p className="text-chart-4 font-bangla text-xs font-medium">
-                পাসওয়ার্ড আপডেট করা হয়েছে।
+                {authContent.changePassword.success}
               </p>
             )}
           </form>

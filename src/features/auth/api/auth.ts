@@ -49,3 +49,35 @@ export async function setShop(shopName: string): Promise<AuthUser> {
   });
   return authUserSchema.parse(response.data);
 }
+
+export async function forgotPassword(email: string): Promise<void> {
+  await apiFetch("/api/v1/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function verifyOtp(email: string, otp: string): Promise<void> {
+  await apiFetch("/api/v1/auth/verify-otp", {
+    method: "POST",
+    body: JSON.stringify({ email, otp }),
+  });
+}
+
+export async function resetPassword(
+  email: string,
+  otp: string,
+  newPassword: string,
+): Promise<void> {
+  await apiFetch("/api/v1/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ email, otp, newPassword }),
+  });
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await apiFetch("/api/v1/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}

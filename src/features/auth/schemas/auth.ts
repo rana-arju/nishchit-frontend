@@ -43,7 +43,50 @@ export function createOnboardingSchema() {
   });
 }
 
+export function createOtpSchema() {
+  const { errors } = authContent.forgotPassword.otp;
+
+  return z.object({
+    otp: z
+      .string()
+      .trim()
+      .regex(/^\d{6}$/, errors.otp),
+  });
+}
+
+export function createResetPasswordSchema() {
+  const { errors } = authContent.forgotPassword.reset;
+
+  return z
+    .object({
+      newPassword: z.string().min(6, errors.newPassword),
+      confirmPassword: z.string().min(6, errors.newPassword),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: errors.confirmPassword,
+      path: ["confirmPassword"],
+    });
+}
+
+export function createChangePasswordSchema() {
+  const { errors } = authContent.changePassword;
+
+  return z
+    .object({
+      currentPassword: z.string().min(1, errors.currentPassword),
+      newPassword: z.string().min(6, errors.newPassword),
+      confirmPassword: z.string().min(6, errors.newPassword),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: errors.confirmPassword,
+      path: ["confirmPassword"],
+    });
+}
+
 export type LoginValues = z.infer<ReturnType<typeof createLoginSchema>>;
 export type RegisterValues = z.infer<ReturnType<typeof createRegisterSchema>>;
 export type ForgotPasswordValues = z.infer<ReturnType<typeof createForgotPasswordSchema>>;
 export type OnboardingValues = z.infer<ReturnType<typeof createOnboardingSchema>>;
+export type OtpValues = z.infer<ReturnType<typeof createOtpSchema>>;
+export type ResetPasswordValues = z.infer<ReturnType<typeof createResetPasswordSchema>>;
+export type ChangePasswordValues = z.infer<ReturnType<typeof createChangePasswordSchema>>;
